@@ -50,6 +50,21 @@ export function cleanMerchantName(rawDescription) {
   // Remove BT* prefix (Bill.com/payment processor)
   name = name.replace(/^BT\*\s*/i, '')
 
+  // Remove PY* prefix (payment processor)
+  name = name.replace(/^PY\s*\*\s*/i, '')
+
+  // Remove WIX* prefix (Wix payment processor)
+  name = name.replace(/^WIX\*[^*]*\*/i, '')
+
+  // Remove DD* prefix (DoorDash)
+  name = name.replace(/^DD\s*\*/i, '')
+
+  // Remove TM* prefix (Ticketmaster)
+  name = name.replace(/^TM\s*\*/i, '')
+
+  // Remove PT* prefix (payment processor)
+  name = name.replace(/^PT\s*\*/i, '')
+
   // Remove SP prefix (Square POS)
   name = name.replace(/^SP\s+/i, '')
 
