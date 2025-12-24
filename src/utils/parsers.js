@@ -6,8 +6,11 @@ import categoryConfig from './category-config.json'
 // Set up PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker
 
-// Load category keywords from config
+// Load category keywords and merchant mappings from config
+// Note: category-config.json is git-ignored for privacy
+// If you clone this repo, copy category-config.example.json to category-config.json
 const CATEGORY_KEYWORDS = categoryConfig.categoryKeywords
+const MERCHANT_MAPPINGS = categoryConfig.merchantMappings
 
 export function categorizeTransaction(title) {
   const titleLower = title.toLowerCase()
@@ -32,7 +35,7 @@ export function cleanMerchantName(rawDescription) {
   name = name.replace(/&gt;/g, '>')
 
   // Check for mapped merchant names from config
-  for (const [pattern, friendlyName] of Object.entries(categoryConfig.merchantMappings)) {
+  for (const [pattern, friendlyName] of Object.entries(MERCHANT_MAPPINGS)) {
     if (new RegExp(pattern, 'i').test(name)) {
       return friendlyName
     }
@@ -71,35 +74,23 @@ export function cleanMerchantName(rawDescription) {
   // Remove common POS system patterns
   name = name.replace(/\s+squareup\.com\/receipts$/i, '')
 
-  // Remove store numbers and IDs
-  name = name.replace(/\s+#?\d{3,}\s+\d{6,}/g, '') // Store # + long number
-  name = name.replace(/\s+\d{10,}/g, '') // Long numbers (10+ digits)
-  name = name.replace(/\s+0{4,}\d+/g, '') // Numbers with leading zeros
-
-  // Remove location info - city and state patterns
-  name = name.replace(/\s+[A-Z][a-z]+\s+[A-Z]{2}$/i, '') // "Princeton NJ"
-  name = name.replace(/\s+[A-Z\s]+\s+[A-Z]{2}$/i, '') // "NEW YORK NY"
-
   // Remove phone numbers (various formats)
   name = name.replace(/\s+\d{3}-\d{3}-\d{4}/g, '') // 123-456-7890
-  name = name.replace(/\s+\d{3}-\d{7}/g, '') // 612-3044357
-  name = name.replace(/\s+\d{3}\s+\d{3}-\d{4}/g, '') // 888 432-3299
-  name = name.replace(/\s+\d{10}/g, '') // 1234567890
-  name = name.replace(/\s+\+\d+/g, '') // +1234567890
+  name = name.replace(/\s+\(\d{3}\)\s*\d{3}-\d{4}/g, '') // (800) 555-1234
+  name = name.replace(/\s+\+\d{11,}/g, '') // +18005551234
 
   // Remove email addresses
   name = name.replace(/\s+[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i, '')
 
   // Remove URLs
   name = name.replace(/\s+https?:\/\/\S+/gi, '')
-  name = name.replace(/\s+\S+\.(com|net|org|info)\/\S*/gi, '')
+  name = name.replace(/\s+[a-z]+\.com\/\S*/gi, '')
 
-  // Remove trailing metadata in ALL CAPS or numbers
-  name = name.replace(/\s+[A-Z\s]{10,}$/i, '') // Long uppercase text at end
-  name = name.replace(/\s+\d{4,}\s*$/, '') // Trailing numbers
+  // Remove very long transaction IDs (alphanumeric strings 20+ chars)
+  name = name.replace(/\s+[A-Z0-9_-]{20,}/gi, '')
 
-  // Remove common suffixes
-  name = name.replace(/\s+(RESTAURANT|FAST FOOD|CABLE & PAY TV|LOCAL TRANSPORTATION|MISC|NONE|GROCERY STOR|PHARMACIES)$/i, '')
+  // Remove common category suffixes only if they're clearly metadata
+  name = name.replace(/\s+(GOODS\/SERVICES|LOCAL TRANSPORTATION|CABLE & PAY TV)$/i, '')
 
   // Clean up extra whitespace
   name = name.replace(/\s+/g, ' ').trim()
@@ -110,6 +101,24 @@ export function cleanMerchantName(rawDescription) {
     .join(' ')
 
   return name
+}
+
+function cleanAppleCardDescription(rawDescription) {
+  // First apply standard cleaning (removes TST*, PAYPAL *, etc.)
+  let desc = cleanMerchantName(rawDescription)
+
+  // Remove full addresses (number + street + city + ZIP + state + country)
+  desc = desc.replace(/\s+\d+[\s\S]*?\d{5}\s+[A-Z]{2}\s+(?:USA|US)/gi, '')
+
+  // Remove remaining address artifacts
+  desc = desc.replace(/\s+\d{5}(?:-\d{4})?\s*$/, '')  // Trailing ZIP
+  desc = desc.replace(/\s+[A-Z]{2}\s*$/, '')           // Trailing state
+  desc = desc.replace(/\s+(?:USA|US)\s*$/i, '')        // Trailing country
+
+  // Clean up extra whitespace
+  desc = desc.replace(/\s+/g, ' ').trim()
+
+  return desc
 }
 
 export function parseAmount(amountStr) {
@@ -432,63 +441,84 @@ function parseAppleCardPDF(pages) {
   const transactions = []
   const fullText = pages.join(' ')
 
-  // Apple Card format: date, description, cashback %, daily cash amount, transaction amount
-  // The key pattern is: MM/DD/YYYY followed by text, then X% $X.XX $XX.XX
-  // We need to find each transaction by looking for the pattern: date...percentage $amount $amount
+  const seenTransactions = new Set()
+  const transactionCounts = new Map()
 
-  // Find all dates in the text first
-  const datePattern = /(\d{2}\/\d{2}\/\d{4})/g
-  const dates = []
-  let dateMatch
-  while ((dateMatch = datePattern.exec(fullText)) !== null) {
-    dates.push({ date: dateMatch[1], index: dateMatch.index })
+  // Helper to create unique transaction
+  function addTransaction(dateStr, description, amount, isCredit = false) {
+    const timestamp = parseDate(dateStr)
+    const amountFloat = parseAmount(amount)
+
+    if (amountFloat === 0 || !description || description.length < 2) {
+      return
+    }
+
+    // Create unique ID with occurrence counter
+    const creditFlag = isCredit ? 'CREDIT' : 'TXN'
+    const baseKey = `${creditFlag}-${timestamp}-${amountFloat}-${description}`.replace(/[^a-zA-Z0-9]/g, '')
+    const occurrenceCount = (transactionCounts.get(baseKey) || 0) + 1
+    transactionCounts.set(baseKey, occurrenceCount)
+    const txId = `${baseKey}-${occurrenceCount}`
+
+    if (!seenTransactions.has(txId)) {
+      seenTransactions.add(txId)
+
+      const title = isCredit ? `[CREDIT] ${description}` : description
+
+      transactions.push({
+        id: txId,
+        timestamp,
+        amount: amountFloat,
+        title,
+        category: categorizeTransaction(title),
+        source: 'Apple Card'
+      })
+    }
   }
 
-  // For each date, try to extract the transaction ending with X% $X.XX $XX.XX
-  for (let i = 0; i < dates.length; i++) {
-    const startIndex = dates[i].index
-    const endIndex = dates[i + 1]?.index || fullText.length
-    const segment = fullText.substring(startIndex, endIndex)
+  // Parse Transactions section
+  const transactionsMatch = fullText.match(/Transactions[\s\S]*?Date[\s\S]*?Description[\s\S]*?Daily Cash[\s\S]*?Amount([\s\S]*?)(?=Payments|Daily Cash Summary|Total Daily Cash|$)/i)
 
-    // Match: date + description + percentage + cashback + amount
-    // The description ends when we hit the pattern: digit% $digit
-    const txMatch = segment.match(/^(\d{2}\/\d{2}\/\d{4})\s+(.+?)\s+(\d+%)\s+\$([\d.]+)\s+\$([\d,]+\.\d{2})/)
+  if (transactionsMatch && transactionsMatch[1]) {
+    const transactionsText = transactionsMatch[1]
 
-    if (txMatch) {
-      const [, dateStr, description, , , amount] = txMatch
+    // Pattern: date + description + percentage + cashback + amount
+    const txPattern = /(\d{2}\/\d{2}\/\d{4})\s+([\s\S]+?)\s+(\d+%)\s+\$\d+\.\d{2}\s+\$(\d{1,3}(?:,\d{3})*\.\d{2})/g
 
-      // Clean up description - remove any trailing payment/header text that got mixed in
-      let cleanDesc = description.trim()
+    let match
+    while ((match = txPattern.exec(transactionsText)) !== null) {
+      const [, dateStr, rawDescription, , amount] = match
 
-      // If description contains another date pattern, truncate before it
-      const extraDateMatch = cleanDesc.match(/\d{2}\/\d{2}\/\d{4}/)
-      if (extraDateMatch) {
-        cleanDesc = cleanDesc.substring(0, extraDateMatch.index).trim()
+      // Clean the merchant description
+      const description = cleanAppleCardDescription(rawDescription)
+
+      // Skip if description is suspiciously short or looks like a header
+      if (description.length < 3 ||
+          description.match(/^(Date|Description|Amount|Daily Cash|Total)$/i)) {
+        continue
       }
 
-      // Remove common PDF artifacts that shouldn't be in description
-      const artifactPatterns = [
-        /ACH Deposit.*$/i,
-        /Total payments.*$/i,
-        /Transactions Date Description.*$/i,
-        /Daily Cash Amount.*$/i,
-      ]
-      for (const pattern of artifactPatterns) {
-        cleanDesc = cleanDesc.replace(pattern, '').trim()
-      }
+      addTransaction(dateStr, description, amount, false)
+    }
+  }
 
-      const timestamp = parseDate(dateStr)
-      const amountFloat = parseAmount(amount)
+  // Parse Payments section
+  const paymentsMatch = fullText.match(/Payments[\s\S]*?Date[\s\S]*?Description[\s\S]*?Amount([\s\S]*?)(?=Daily Cash Summary|Interest Charged|Total|Transactions|$)/i)
 
-      if (amountFloat > 0 && cleanDesc.length > 0) {
-        transactions.push({
-          id: `${timestamp}-${amountFloat}-${cleanDesc}`.replace(/[^a-zA-Z0-9]/g, ''),
-          timestamp,
-          amount: amountFloat,
-          title: cleanDesc,
-          category: categorizeTransaction(cleanDesc),
-          source: 'Apple Card'
-        })
+  if (paymentsMatch && paymentsMatch[1]) {
+    const paymentsText = paymentsMatch[1]
+
+    // Pattern: date + ACH Deposit + description + -$amount
+    const paymentPattern = /(\d{2}\/\d{2}\/\d{4})\s+ACH Deposit\s+([^-\$]+?)\s+-\$(\d{1,3}(?:,\d{3})*\.\d{2})/g
+
+    let match
+    while ((match = paymentPattern.exec(paymentsText)) !== null) {
+      const [, dateStr, rawDescription, amount] = match
+
+      const description = cleanAppleCardDescription(rawDescription)
+
+      if (description.length >= 3) {
+        addTransaction(dateStr, description, amount, true)
       }
     }
   }
