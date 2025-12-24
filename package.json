@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "npm run setup-config && vite",
+    "build": "npm run setup-config && vite build",
+    "setup-config": "test -f src/utils/category-config.json || cp src/utils/category-config.example.json src/utils/category-config.json",
     "lint": "eslint .",
     "preview": "vite preview"
   },
