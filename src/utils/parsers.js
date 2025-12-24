@@ -1,81 +1,13 @@
 import Papa from 'papaparse'
 import * as pdfjsLib from 'pdfjs-dist'
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
+import categoryConfig from './category-config.json'
 
 // Set up PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker
 
-// Category keywords mapping
-const CATEGORY_KEYWORDS = {
-  'Credits & Refunds': [
-    '[credit]', 'refund', 'reimbursement', 'amex credit', 'dining credit',
-    'credit reimbursement', 'cashback', 'cash back', 'return'
-  ],
-  'Food & Dining': [
-    'restaurant', 'cafe', 'coffee', 'pizza', 'burger', 'sushi', 'food',
-    'doordash', 'uber eats', 'grubhub', 'postmates', 'seamless',
-    'mcdonald', 'starbucks', 'chipotle', 'subway', 'wendy', 'taco bell',
-    'dunkin', 'panera', 'chick-fil-a', 'domino', 'papa john',
-    'grocery', 'whole foods', 'wholefds', 'trader joe', 'safeway', 'kroger',
-    'aldi', 'publix', 'sweetgreen', 'breakfast', 'haidilao', 'hot pot',
-    'bakery', 'market', 'grill', 'pho', 'wondee', 'karczma',
-    'land to sea', 'ando ando', 'daytime willi', 'mr. plum', 'lemon tree',
-    'mama pho', 'morelia', 'she wolf', 'meat', 'caffe', 'pita',
-    'zaab', 'julieat', 'nick + sons', 'loaf', 'japanese mark',
-    'burson', 'vibe twelv', 'maison de mi', 'williams frui',
-    'wegmans', 'shoprite', 'cheesecake factory', 'shawarma', 'birrielandia',
-    'too good to go', 'heytea', 'molly tea', 'lilia', 'nitehawk cinema',
-    'bedford gardens', 'simply nova', 'grass roots juicery', 'chopt',
-    'bis bas mediterranean', 'bk jani', 'moe doughs', 'quick chek'
-  ],
-  'Transportation': [
-    'uber', 'lyft', 'taxi', 'cab', 'transit', 'metro', 'subway', 'bus',
-    'train', 'amtrak', 'gas', 'shell', 'chevron', 'exxon', 'exxonmobil', 'bp',
-    'parking', 'toll', 'car wash', 'auto', 'nyct paygo', 'e-z pass', 'ezpass',
-    'valet auto wash'
-  ],
-  'Shopping': [
-    'amazon', 'ebay', 'etsy', 'best buy', 'apple store', 'nike', 'adidas',
-    'zara', 'h&m', 'nordstrom', 'macy', 'clothing', 'shoes', 'electronics',
-    'sandy liang', 'chewy', 'a&c supply', 'hoka', 'deckers', 'duane reade',
-    'target', 'joann stores', 'f21store', 'forever 21', 'pepboys',
-    'apple.com/bill', 'knot registry'
-  ],
-  'Entertainment': [
-    'netflix', 'spotify', 'hulu', 'disney', 'hbo', 'youtube',
-    'movie', 'cinema', 'theater', 'concert', 'ticket', 'game',
-    'steam', 'playstation', 'xbox', 'nintendo', 'diplo',
-    'max', 'hbo max', 'minecraft', 'realms'
-  ],
-  'Subscriptions': [
-    'openai', 'chatgpt', 'claude', 'anthropic', 'microsoft', 'leetcode',
-    'linkedin', 'interviewdb', 'hellointerview', 'spotify', 'hbo max',
-    'netflix', 'hulu', 'disney', 'apple.com/bill', 'azure billing'
-  ],
-  'Bills & Utilities': [
-    'electric', 'water', 'gas bill', 'internet', 'phone', 'verizon',
-    'at&t', 'comcast', 'spectrum', 'utility', 'bill', 'rent',
-    'mortgage', 'insurance'
-  ],
-  'Health': [
-    'pharmacy', 'cvs', 'walgreens', 'doctor', 'hospital', 'clinic',
-    'dental', 'medical', 'health', 'gym', 'fitness', 'bq sports',
-    'lifetimefitness', 'lifetime fitness'
-  ],
-  'Travel': [
-    'airline', 'flight', 'hotel', 'airbnb', 'vrbo', 'booking',
-    'expedia', 'delta', 'united', 'american airlines', 'southwest',
-    'marriott', 'hilton', 'hyatt', 'frontier airlines', 'frontier'
-  ],
-  'Charity': [
-    'charity', 'donation', 'donate', 'foundation', 'stand up to cancer',
-    'cancer', 'nonprofit', 'giving', 'contribute'
-  ],
-  'Home & Garden': [
-    'lowe', 'home depot', 'hardware', 'ikea', 'wayfair', 'furniture',
-    'bubbles away', 'garden', 'home improvement'
-  ]
-}
+// Load category keywords from config
+const CATEGORY_KEYWORDS = categoryConfig.categoryKeywords
 
 export function categorizeTransaction(title) {
   const titleLower = title.toLowerCase()
@@ -99,59 +31,8 @@ export function cleanMerchantName(rawDescription) {
   name = name.replace(/&lt;/g, '<')
   name = name.replace(/&gt;/g, '>')
 
-  // Merchant name mappings for common patterns
-  const merchantMappings = {
-    'NYCT PAYGO': 'MTA Subway',
-    'NJT RAIL MY-TIX': 'NJ Transit',
-    'VENTRA ACCOUNT': 'Chicago Ventra',
-    'PATH TAPP PAYGO': 'PATH Train',
-    'PABT': 'Port Authority Bus',
-    'TRADER JOE S': 'Trader Joe\'s',
-    'WHOLEFDS': 'Whole Foods',
-    'SHOPRITE': 'ShopRite',
-    'LIFETIMEFITNESS': 'Lifetime Fitness',
-    'GROUND CENTRAL COFFEE COMPANY': 'Ground Central Coffee',
-    'TST\\* DARK MATTER COFFEE': 'Dark Matter Coffee',
-    'TST\\* CHOPT': 'Chopt',
-    'CHICK-FIL-A': 'Chick-fil-A',
-    'SWEETGREEN': 'Sweetgreen',
-    'CHIPOTLE': 'Chipotle',
-    'RAISING CANES': 'Raising Cane\'s',
-    'GRUBHUB\\*': 'Grubhub',
-    'UBER EATS': 'Uber Eats',
-    'UBER POSTMATES': 'Uber Eats',
-    'SPOTIFY USA': 'Spotify',
-    'NETFLIX\\.COM': 'Netflix',
-    'CHATGPT SUBSCRIPTION': 'ChatGPT',
-    'AMAZON MARKETPLACE': 'Amazon',
-    'AMAZON\\.COM': 'Amazon',
-    'AIRBNB': 'Airbnb',
-    'DUANE READE': 'Duane Reade',
-    'WHOLE FOODS MARKET': 'Whole Foods',
-    'BIBBLE & SIP': 'Bibble & Sip',
-    'INSOMNIA COOKIES': 'Insomnia Cookies',
-    'SHAWARMA BAY & KEBABS': 'Shawarma Bay & Kebabs',
-    'ROYAL HIGHNESS ZHU': 'Royal Highness',
-    'PRINCETON PARKING': 'Princeton Parking',
-    'VALET AUTO WASH': 'Valet Auto Wash',
-    'ASIAN FOOD MARKETS': 'Asian Food Market',
-    'NEW JERSEY E-Z PASS': 'E-ZPass',
-    'MICROSOFT\\*': 'Microsoft',
-    'BT\\*AMERICAN SPECIALTY HEALTH': 'American Specialty Health',
-    'JOONG BOO MARKET': 'Joong Boo Market',
-    'VILLAGE DISCOUNT OUTLET': 'Village Discount Outlet',
-    'SHU HOUSE RESTAURANT': 'Shu House',
-    'THE FOUR HORSEMEN': 'The Four Horsemen',
-    'CLASSY NAILS': 'Classy Nails',
-    'BROOKLYN ART HAUS': 'Brooklyn Art Haus',
-    'SEBCO LAUNDRY': 'Laundry',
-    'NJ MOTOR VEHICLE': 'NJ DMV',
-    'MOE.*DOUGHS': 'Moe Doughs',
-    '365 MARKET': '365 Market'
-  }
-
-  // Check for mapped merchant names first
-  for (const [pattern, friendlyName] of Object.entries(merchantMappings)) {
+  // Check for mapped merchant names from config
+  for (const [pattern, friendlyName] of Object.entries(categoryConfig.merchantMappings)) {
     if (new RegExp(pattern, 'i').test(name)) {
       return friendlyName
     }

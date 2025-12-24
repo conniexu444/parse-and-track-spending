@@ -90,6 +90,84 @@ section h2::before {
   color: rgba(55, 53, 47, 0.7);
 }
 
+.upload-note-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.info-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(55, 53, 47, 0.25);
+  background: white;
+  color: rgb(55, 53, 47);
+  font-size: 9px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+  top: -1px;
+}
+
+.info-btn:hover {
+  background: rgba(55, 53, 47, 0.06);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 17, 17, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  width: min(560px, 100%);
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(55, 53, 47, 0.1);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 8px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.modal-close {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  color: rgba(55, 53, 47, 0.7);
+}
+
+.modal-body {
+  padding: 0 18px 18px;
+  font-size: 14px;
+  color: rgba(55, 53, 47, 0.8);
+}
+
+.modal-body p {
+  margin: 8px 0;
+}
+
 .upload-btn {
   display: inline-flex;
   align-items: center;
