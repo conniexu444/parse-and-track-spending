@@ -38,11 +38,17 @@ export function cleanMerchantName(rawDescription) {
     }
   }
 
+  // Remove leading date patterns (MM/DD/YY, MM/DD/YYYY, etc.)
+  name = name.replace(/^\d{1,2}\/\d{1,2}\/\d{2,4}\s+/g, '')
+
   // Remove "AplPay " prefix
   name = name.replace(/^AplPay\s+/i, '')
 
   // Remove TST* prefix (Toast POS system)
   name = name.replace(/^TST\*\s*/i, '')
+
+  // Remove BT* prefix (Bill.com/payment processor)
+  name = name.replace(/^BT\*\s*/i, '')
 
   // Remove SP prefix (Square POS)
   name = name.replace(/^SP\s+/i, '')
