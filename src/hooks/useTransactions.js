@@ -96,7 +96,25 @@ export function useTransactions() {
     const transfer = kind === 'pdf' ? [payload.arrayBuffer] : []
 
     return new Promise((resolve, reject) => {
-      pendingRef.current.set(id, { resolve, reject })
+      // Set up 1-minute timeout
+      const timeoutId = setTimeout(() => {
+        pendingRef.current.delete(id)
+        reject(new Error(`File parsing timeout after 60 seconds for: ${filename}`))
+      }, 60000) // 60 seconds = 1 minute
+
+      pendingRef.current.set(id, {
+        resolve: (result) => {
+          clearTimeout(timeoutId)
+          pendingRef.current.delete(id)
+          resolve(result)
+        },
+        reject: (error) => {
+          clearTimeout(timeoutId)
+          pendingRef.current.delete(id)
+          reject(error)
+        }
+      })
+
       worker.postMessage({ id, filename, kind, payload }, transfer)
     })
   }, [])
