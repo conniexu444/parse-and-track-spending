@@ -1,10 +1,11 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useId } from 'react'
 import PropTypes from 'prop-types'
 
 function InstructionModal({ isOpen, onClose, title, steps }) {
   const modalRef = useRef(null)
   const triggerRef = useRef(null)
   const onCloseRef = useRef(onClose)
+  const titleId = useId()
 
   // Keep onClose ref updated without triggering effect re-runs
   useEffect(() => {
@@ -82,12 +83,12 @@ function InstructionModal({ isOpen, onClose, title, steps }) {
       className="modal-overlay"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="modal-title"
+      aria-labelledby={titleId}
       onClick={handleOverlayClick}
     >
       <div className="modal" ref={modalRef}>
         <div className="modal-header">
-          <h3 id="modal-title">{title}</h3>
+          <h3 id={titleId}>{title}</h3>
           <button
             type="button"
             className="modal-close"
