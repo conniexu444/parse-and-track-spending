@@ -40,12 +40,12 @@ export const HELP_CONTENT = {
     title: 'How to find your Apple Card statement',
     steps: [
       {
-        text: 'Open the Wallet app on your iPhone and tap on your Apple Card, then tap <strong>Statements</strong>',
+        text: 'Go to <strong>card.apple.com</strong> on your laptop and click on <strong>Statements</strong>',
         image: apple1,
-        altText: 'Apple Card menu showing Statements option'
+        altText: 'Apple Card website showing Statements option'
       },
       {
-        text: 'Find the statement you want and tap the <strong>download icon</strong> on the right',
+        text: 'Find the statement you want and click the <strong>download icon</strong> on the right',
         image: apple2,
         altText: 'Statements list with download icons'
       },
