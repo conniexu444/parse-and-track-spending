@@ -33,6 +33,7 @@ tmp
 # Project-specific
 ARCHITECTURE.md
 architecture.md
+CLAUDE.md
 
 # Personal data - keep local only
 src/utils/category-config.json
