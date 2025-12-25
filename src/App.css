@@ -129,14 +129,6 @@ section h2::before {
   padding: 20px;
 }
 
-.modal {
-  width: min(560px, 100%);
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(55, 53, 47, 0.1);
-}
-
 .modal-header {
   display: flex;
   align-items: center;
@@ -158,14 +150,72 @@ section h2::before {
   color: rgba(55, 53, 47, 0.7);
 }
 
+.modal {
+  width: min(800px, 100%);
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(55, 53, 47, 0.1);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .modal-body {
   padding: 0 18px 18px;
   font-size: 14px;
   color: rgba(55, 53, 47, 0.8);
+  overflow-y: auto;
 }
 
 .modal-body p {
   margin: 8px 0;
+}
+
+.pdf-instructions {
+  list-style: none;
+  counter-reset: step-counter;
+  padding: 0;
+  margin: 0;
+}
+
+.pdf-instructions li {
+  counter-increment: step-counter;
+  margin-bottom: 24px;
+  position: relative;
+  padding-left: 32px;
+}
+
+.pdf-instructions li::before {
+  content: counter(step-counter);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  background: rgb(46, 170, 220);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pdf-instructions li p {
+  margin: 0 0 12px 0;
+  color: rgb(55, 53, 47);
+  font-weight: 500;
+}
+
+.instruction-img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid rgba(55, 53, 47, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .upload-btn {
