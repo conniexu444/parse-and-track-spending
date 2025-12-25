@@ -65,8 +65,8 @@ export const UPLOAD_LABELS = {
   },
   clearButton: 'Clear All Data',
   confirmClear: 'Are you sure you want to clear all data? This cannot be undone.',
-  amexNote: 'PDF support: American Express',
+  amexNote: 'CSV/PDF support: American Express',
   appleNote: 'CSV/PDF support: Apple Card',
-  amexAriaLabel: 'How to find and download your American Express PDF statement',
+  amexAriaLabel: 'How to find and download your American Express statement',
   appleAriaLabel: 'How to find and download your Apple Card statement'
 }
