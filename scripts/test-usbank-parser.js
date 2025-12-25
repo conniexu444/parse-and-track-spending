@@ -1,5 +1,6 @@
 /* eslint-env node, es2021 */
 // Test script to debug US Bank parser
+// Usage: PDF_PATH=/path/to/statement.pdf node scripts/test-usbank-parser.js
 import process from 'process'
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { readFileSync, existsSync } from 'fs'
@@ -8,7 +9,7 @@ import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-const PDF_PATH = process.env.PDF_PATH || '/Users/connie/Downloads/2025-10-27 Statement - USB Altitude Go 7399.pdf'
+const PDF_PATH = process.env.PDF_PATH || 'test-statement.pdf'
 
 // Set worker src to absolute path
 pdfjsLib.GlobalWorkerOptions.workerSrc = path.resolve(__dirname, '..', 'node_modules', 'pdfjs-dist', 'legacy', 'build', 'pdf.worker.mjs')
@@ -94,7 +95,9 @@ async function debugUSBankPDF(filePath) {
     const [, postDate, transDate, refNum, description, amount] = match
 
     // Skip obvious header text, metadata, or section labels
-    if (description.match(/^(TOTAL|Continued|Post|Trans|Date|Ref|Transaction|Description|Amount|Page|Statement|CR)/i)) {
+    // Match exact strings only (using $ anchor) to avoid filtering legitimate merchants
+    // like "TOTAL WINE", "POST OFFICE", etc.
+    if (description.match(/^(TOTAL|Continued|Post Date|Trans Date|Date|Ref|Transaction Date|Description|Amount|Page \d+|Statement Period|CR)$/i)) {
       continue
     }
 

@@ -597,10 +597,35 @@ function parseUSBankPDF(pages) {
   // Extract the statement period to get the year (accounting for spaces in PDF text)
   // Pattern matches: "09 / 26 / 20 25" format from PDFs
   const periodMatch = fullText.match(/(\d{2})\s*\/\s*(\d{2})\s*\/\s*(\d{2})\s+(\d{2})\s*-\s*(\d{2})\s*\/\s*(\d{2})\s*\/\s*(\d{2})\s+(\d{2})/)
-  const statementYear = periodMatch ? `${periodMatch[7]}${periodMatch[8]}` : new Date().getFullYear().toString()
+
+  let statementStartMonth, statementEndMonth, statementStartYear, statementEndYear
+  if (periodMatch) {
+    statementStartMonth = parseInt(periodMatch[1], 10)
+    statementStartYear = `${periodMatch[3]}${periodMatch[4]}`
+    statementEndMonth = parseInt(periodMatch[5], 10)
+    statementEndYear = `${periodMatch[7]}${periodMatch[8]}`
+  } else {
+    // Fallback to current year if pattern not found
+    const currentYear = new Date().getFullYear().toString()
+    statementStartYear = currentYear
+    statementEndYear = currentYear
+    statementStartMonth = 1
+    statementEndMonth = 12
+  }
 
   const seenTransactions = new Set()
   const transactionCounts = new Map()
+
+  // Helper to determine the correct year for a transaction
+  function getTransactionYear(month) {
+    // If statement crosses year boundary (e.g., Dec 2024 - Jan 2025)
+    if (statementStartMonth > statementEndMonth) {
+      // December transactions belong to start year, January to end year
+      return month >= statementStartMonth ? statementStartYear : statementEndYear
+    }
+    // Otherwise, all transactions use end year
+    return statementEndYear
+  }
 
   // Helper to add transaction
   function addTransaction(dateStr, description, amountStr) {
@@ -609,7 +634,8 @@ function parseUSBankPDF(pages) {
 
     // Parse the date - dateStr is MM/DD format, need to add year
     const [month, day] = cleanDate.split('/')
-    const fullDate = `${month}/${day}/${statementYear}`
+    const transactionYear = getTransactionYear(parseInt(month, 10))
+    const fullDate = `${month}/${day}/${transactionYear}`
     const timestamp = parseDate(fullDate)
 
     // Clean the merchant description (remove extra spaces first)
@@ -658,7 +684,9 @@ function parseUSBankPDF(pages) {
     const [, postDate, transDate, refNum, description, amount] = match
 
     // Skip obvious header text, metadata, or section labels
-    if (description.match(/^(TOTAL|Continued|Post|Trans|Date|Ref|Transaction|Description|Amount|Page|Statement|CR)/i)) {
+    // Match exact strings only (using $ anchor) to avoid filtering legitimate merchants
+    // like "TOTAL WINE", "POST OFFICE", etc.
+    if (description.match(/^(TOTAL|Continued|Post Date|Trans Date|Date|Ref|Transaction Date|Description|Amount|Page \d+|Statement Period|CR)$/i)) {
       continue
     }
 
