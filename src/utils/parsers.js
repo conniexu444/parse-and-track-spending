@@ -121,6 +121,52 @@ function cleanAppleCardDescription(rawDescription) {
   return desc
 }
 
+export function isTransferOrPayment(description) {
+  const lowerDesc = description.toLowerCase()
+
+  // For checking accounts: Only filter actual transfers, not bill payments/subscriptions
+  // Credit card payments (paying off credit cards - already counted on CC statements)
+  const creditCardPayments = [
+    'amex epayment',
+    'amex payment',
+    'american express ach',
+    'american express pmt',
+    'applecard gsbank',
+    'apple card payment',
+    'chase payment',
+    'citi payment',
+    'discover payment',
+    'capital one payment',
+    'credit card payment'
+  ]
+
+  // P2P and account transfers (money movement, not spending)
+  const accountTransfers = [
+    'zelle',
+    'venmo',
+    'paypal transfer',
+    'account transfer',
+    'transfer to',
+    'transfer from',
+    'robinhood',           // Investment transfers
+    'debits xxxxx',        // Investment/brokerage transfers
+    'internal transfer',
+    'external transfer'
+  ]
+
+  // Check credit card payments
+  if (creditCardPayments.some(keyword => lowerDesc.includes(keyword))) {
+    return true
+  }
+
+  // Check account transfers
+  if (accountTransfers.some(keyword => lowerDesc.includes(keyword))) {
+    return true
+  }
+
+  return false
+}
+
 export function parseAmount(amountStr) {
   if (typeof amountStr === 'number') {
     return Math.abs(amountStr)
@@ -164,8 +210,6 @@ export function detectSource(filename, content = '') {
     return 'American Express'
   } else if (lowerFilename.includes('chase')) {
     return 'Chase'
-  } else if (lowerFilename.includes('wells') || lowerFilename.includes('fargo')) {
-    return 'Wells Fargo'
   } else if (lowerFilename.includes('citi')) {
     return 'Citi'
   } else if (lowerFilename.includes('discover')) {
@@ -286,50 +330,6 @@ async function extractTextFromPDFBuffer(arrayBuffer, { disableWorker = false, ma
   return pages
 }
 
-function parseWellsFargoPDF(pages) {
-  const transactions = []
-  const fullText = pages.join(' ')
-
-  // Get statement year from first page
-  const yearMatch = fullText.match(/Statement Period \d{2}\/\d{2}\/(\d{4})/)
-  const statementYear = yearMatch ? yearMatch[1] : new Date().getFullYear().toString()
-
-  // Use regex to find all transactions globally
-  // Pattern: 4-digit card ending, MM/DD date, MM/DD date, ref number, description, amount
-  const txPattern = /(\d{4})\s+(\d{2}\/\d{2})\s+(\d{2}\/\d{2})\s+([A-Z0-9]+)\s+(.+?)\s+([\d,]+\.\d{2})(?=\s+\d{4}\s+\d{2}\/\d{2}|\s+TOTAL|\s+Fees|$)/g
-
-  // Track seen reference numbers to avoid duplicates
-  const seenRefs = new Set()
-
-  let match
-  while ((match = txPattern.exec(fullText)) !== null) {
-    const [, , transDate, , refNum, description, amount] = match
-
-    // Skip if we've already seen this reference number
-    if (seenRefs.has(refNum)) {
-      continue
-    }
-    seenRefs.add(refNum)
-
-    const fullDate = `${transDate}/${statementYear}`
-    const timestamp = parseDate(fullDate)
-    const amountFloat = parseAmount(amount)
-
-    if (amountFloat > 0) {
-      transactions.push({
-        id: `${timestamp}-${amountFloat}-${refNum}`.replace(/[^a-zA-Z0-9]/g, ''),
-        timestamp,
-        amount: amountFloat,
-        title: description.trim(),
-        category: categorizeTransaction(description),
-        source: 'Wells Fargo'
-      })
-    }
-  }
-
-  return transactions
-}
-
 function parseAmexPDF(pages) {
   const transactions = []
   const fullText = pages.join(' ')
@@ -393,6 +393,11 @@ function parseAmexPDF(pages) {
       // Apply comprehensive merchant name cleanup
       const description = cleanMerchantName(rawClean)
 
+      // Skip transfers and payments (not actual spending)
+      if (isTransferOrPayment(description)) {
+        continue
+      }
+
       // Parse amount
       const amountFloat = parseAmount(amountStr)
 
@@ -445,6 +450,7 @@ function parseAppleCardPDF(pages) {
   const transactionCounts = new Map()
 
   // Helper to create unique transaction
+  // Note: description should already be cleaned and pre-filtered for transfers
   function addTransaction(dateStr, description, amount, isCredit = false) {
     const timestamp = parseDate(dateStr)
     const amountFloat = parseAmount(amount)
@@ -480,25 +486,76 @@ function parseAppleCardPDF(pages) {
   const transactionsMatch = fullText.match(/Transactions[\s\S]*?Date[\s\S]*?Description[\s\S]*?Daily Cash[\s\S]*?Amount([\s\S]*?)(?=Payments|Daily Cash Summary|Total Daily Cash|$)/i)
 
   if (transactionsMatch && transactionsMatch[1]) {
-    const transactionsText = transactionsMatch[1]
+    let transactionsText = transactionsMatch[1]
 
-    // Pattern: date + description + percentage + cashback + amount
-    const txPattern = /(\d{2}\/\d{2}\/\d{4})\s+([\s\S]+?)\s+(\d+%)\s+\$\d+\.\d{2}\s+\$(\d{1,3}(?:,\d{3})*\.\d{2})/g
+    // Normalize whitespace to improve matching consistency across PDF libraries
+    // Replace multiple spaces/tabs with single space, but preserve line breaks
+    transactionsText = transactionsText
+      .replace(/[ \t]+/g, ' ')  // Multiple spaces/tabs -> single space
+      .replace(/ *\n */g, '\n')  // Remove spaces around newlines
+      .trim()
 
+    // Primary pattern: date + description + percentage + cashback + amount
+    // Made more flexible to handle PDF extraction variations
+    const txPattern = /(\d{2}\/\d{2}\/\d{4})\s+([\s\S]+?)\s+(\d+%)\s*\$\d+\.\d{2}\s+\$(\d{1,3}(?:,\d{3})*\.\d{2})/g
+
+    const matchedDates = new Set()
     let match
+    let primaryCount = 0
+
+    // First pass: Primary pattern
     while ((match = txPattern.exec(transactionsText)) !== null) {
       const [, dateStr, rawDescription, , amount] = match
 
-      // Clean the merchant description
-      const description = cleanAppleCardDescription(rawDescription)
-
       // Skip if description is suspiciously short or looks like a header
-      if (description.length < 3 ||
-          description.match(/^(Date|Description|Amount|Daily Cash|Total)$/i)) {
+      if (rawDescription.length < 3 ||
+          rawDescription.match(/^(Date|Description|Amount|Daily Cash|Total)$/i)) {
         continue
       }
 
+      // IMPORTANT: Check for transfers on RAW description BEFORE cleaning
+      // This prevents merchant mappings (e.g., "SQ *" -> "Square Payment") from triggering false positives
+      if (isTransferOrPayment(rawDescription)) {
+        continue
+      }
+
+      // Clean the merchant description AFTER transfer check
+      const description = cleanAppleCardDescription(rawDescription)
+
+      matchedDates.add(dateStr + '-' + amount)
       addTransaction(dateStr, description, amount, false)
+      primaryCount++
+    }
+
+    // Second pass: Fallback pattern for missed transactions
+    // More flexible pattern that handles edge cases (e.g., SQ * transactions)
+    const fallbackPattern = /(\d{2}\/\d{2}\/\d{4})[\s\n]+([\s\S]+?)[\s\n]+(\d+%)[\s\n]*\$[\d,]+\.(\d{2})[\s\n]+\$(\d{1,3}(?:,\d{3})*\.\d{2})/g
+
+    let fallbackCount = 0
+    while ((match = fallbackPattern.exec(transactionsText)) !== null) {
+      const [, dateStr, rawDescription, , , amount] = match
+      const txKey = dateStr + '-' + amount
+
+      // Skip if already matched in first pass
+      if (matchedDates.has(txKey)) {
+        continue
+      }
+
+      // Skip if raw description is too short or looks like a header
+      if (rawDescription.length < 3 ||
+          rawDescription.match(/^(Date|Description|Amount|Daily Cash|Total)$/i)) {
+        continue
+      }
+
+      // Check for transfers on raw description before cleaning
+      if (isTransferOrPayment(rawDescription)) {
+        continue
+      }
+
+      const description = cleanAppleCardDescription(rawDescription)
+
+      addTransaction(dateStr, description, amount, false)
+      fallbackCount++
     }
   }
 
@@ -514,6 +571,11 @@ function parseAppleCardPDF(pages) {
     let match
     while ((match = paymentPattern.exec(paymentsText)) !== null) {
       const [, dateStr, rawDescription, amount] = match
+
+      // Skip if raw description indicates a transfer (should filter all ACH deposits)
+      if (isTransferOrPayment(rawDescription)) {
+        continue
+      }
 
       const description = cleanAppleCardDescription(rawDescription)
 
@@ -531,21 +593,27 @@ export async function parsePDFBuffer(arrayBuffer, filename = '', { disableWorker
     const pages = await extractTextFromPDFBuffer(arrayBuffer, { disableWorker, maxPages })
     const fullText = pages.join(' ')
 
+    console.log('=== PDF DETECTION DEBUG ===')
+    console.log('Total text length:', fullText.length)
+    console.log('First 200 chars:', fullText.substring(0, 200))
+    console.log('Contains "American Express":', fullText.includes('American Express'))
+    console.log('Contains "Apple Card":', fullText.includes('Apple Card'))
+
     // Detect PDF type
     let transactions = []
     let source = 'Unknown'
 
-    if (fullText.includes('American Express') || fullText.includes('AMERICAN EXPRESS')) {
-      transactions = parseAmexPDF(pages)
-      source = 'American Express'
-    } else if (fullText.includes('Apple Card') || fullText.includes('Goldman Sachs')) {
+    if (fullText.includes('Apple Card') || fullText.includes('Goldman Sachs')) {
+      console.log('Detected: Apple Card')
       transactions = parseAppleCardPDF(pages)
       source = 'Apple Card'
-    } else if (fullText.includes('WELLS FARGO') || fullText.includes('Wells Fargo')) {
-      transactions = parseWellsFargoPDF(pages)
-      source = 'Wells Fargo'
+    } else if (fullText.includes('American Express') || fullText.includes('AMERICAN EXPRESS')) {
+      console.log('Detected: American Express')
+      transactions = parseAmexPDF(pages)
+      source = 'American Express'
     } else {
-      throw new Error('Unknown PDF format. Supported formats: American Express, Wells Fargo, Apple Card')
+      console.log('ERROR: Unknown PDF format')
+      throw new Error('Unknown PDF format. Supported formats: American Express, Apple Card')
     }
 
     if (transactions.length === 0) {
