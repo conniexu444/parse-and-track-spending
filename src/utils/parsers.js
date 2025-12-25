@@ -593,26 +593,17 @@ export async function parsePDFBuffer(arrayBuffer, filename = '', { disableWorker
     const pages = await extractTextFromPDFBuffer(arrayBuffer, { disableWorker, maxPages })
     const fullText = pages.join(' ')
 
-    console.log('=== PDF DETECTION DEBUG ===')
-    console.log('Total text length:', fullText.length)
-    console.log('First 200 chars:', fullText.substring(0, 200))
-    console.log('Contains "American Express":', fullText.includes('American Express'))
-    console.log('Contains "Apple Card":', fullText.includes('Apple Card'))
-
     // Detect PDF type
     let transactions = []
     let source = 'Unknown'
 
     if (fullText.includes('Apple Card') || fullText.includes('Goldman Sachs')) {
-      console.log('Detected: Apple Card')
       transactions = parseAppleCardPDF(pages)
       source = 'Apple Card'
     } else if (fullText.includes('American Express') || fullText.includes('AMERICAN EXPRESS')) {
-      console.log('Detected: American Express')
       transactions = parseAmexPDF(pages)
       source = 'American Express'
     } else {
-      console.log('ERROR: Unknown PDF format')
       throw new Error('Unknown PDF format. Supported formats: American Express, Apple Card')
     }
 
