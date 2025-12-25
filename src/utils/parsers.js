@@ -188,7 +188,7 @@ export function parseAmount(amountStr) {
   }
 
   const num = parseFloat(cleaned)
-  return isNaN(num) ? 0 : Math.abs(num)
+  return (isNaN(num) || !isFinite(num)) ? 0 : Math.abs(num)
 }
 
 export function parseDate(dateStr) {
@@ -203,8 +203,8 @@ export function parseDate(dateStr) {
   }
 }
 
-export function detectSource(filename, content = '') {
-  const lowerFilename = filename.toLowerCase()
+export function detectSource(filename = '', content = '') {
+  const lowerFilename = (filename || '').toLowerCase()
 
   if (lowerFilename.includes('amex') || lowerFilename.includes('american') || lowerFilename.includes('american-express')) {
     return 'American Express'

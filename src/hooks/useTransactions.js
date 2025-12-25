@@ -114,7 +114,7 @@ export function useTransactions() {
 
   useEffect(() => {
     refreshData({ startDate, endDate, selectedCategory })
-  }, [startDate, endDate, selectedCategory, refreshData, parseFile])
+  }, [startDate, endDate, selectedCategory, refreshData])
 
   const handleFileUpload = useCallback(async (e) => {
     const files = Array.from(e.target.files)
