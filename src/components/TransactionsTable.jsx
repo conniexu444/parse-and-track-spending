@@ -10,7 +10,10 @@ function TransactionsTable({
   handleCategoryChange,
   sortField,
   sortDirection,
-  handleSort
+  handleSort,
+  deletingId,
+  setDeletingId,
+  setDeleteConfirmOpen
 }) {
 
   return (
@@ -28,6 +31,7 @@ function TransactionsTable({
                 <SortHeader field="category" label="Category" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
                 <SortHeader field="source" label="Source" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
                 <SortHeader field="amount" label="Amount" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -67,6 +71,20 @@ function TransactionsTable({
                   </td>
                   <td><span className={`source-badge source-${(tx.source || 'unknown').toLowerCase().replace(/\s+/g, '-')}`}>{tx.source || 'Unknown'}</span></td>
                   <td className="amount-cell">{formatCurrency(tx.amount)}</td>
+                  <td className="actions-cell">
+                    <button
+                      type="button"
+                      className="delete-btn"
+                      onClick={() => {
+                        setDeletingId(tx.id)
+                        setDeleteConfirmOpen(true)
+                      }}
+                      aria-label={`Delete transaction for ${tx.title}`}
+                      title="Delete this transaction"
+                    >
+                      <span className="delete-icon">×</span>
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

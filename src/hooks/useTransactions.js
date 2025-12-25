@@ -6,7 +6,8 @@ import {
   getFilteredTransactions,
   getSummary,
   getCategories,
-  updateTransactionCategory
+  updateTransactionCategory,
+  deleteTransaction
 } from '../utils/storage'
 
 const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024
@@ -32,6 +33,8 @@ export function useTransactions() {
   const [editingId, setEditingId] = useState(null)
   const [sortField, setSortField] = useState('timestamp')
   const [sortDirection, setSortDirection] = useState('desc')
+  const [deletingId, setDeletingId] = useState(null)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const workerRef = useRef(null)
   const pendingRef = useRef(new Map())
   const timeoutIdsRef = useRef(new Map())
@@ -212,6 +215,15 @@ export function useTransactions() {
     refreshData({ startDate, endDate, selectedCategory })
   }, [startDate, endDate, selectedCategory, refreshData])
 
+  const handleDeleteTransaction = useCallback((transactionId) => {
+    if (deleteTransaction(transactionId)) {
+      setMessage({ text: 'Transaction deleted', type: 'success' })
+      setDeleteConfirmOpen(false)
+      setDeletingId(null)
+      refreshData({ startDate, endDate, selectedCategory })
+    }
+  }, [startDate, endDate, selectedCategory, refreshData])
+
   const handleSort = useCallback((field) => {
     if (sortField === field) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -278,9 +290,14 @@ export function useTransactions() {
     setEditingId,
     sortField,
     sortDirection,
+    deletingId,
+    setDeletingId,
+    deleteConfirmOpen,
+    setDeleteConfirmOpen,
     handleFileUpload,
     handleClearData,
     handleCategoryChange,
+    handleDeleteTransaction,
     handleSort,
     resetFilters
   }
