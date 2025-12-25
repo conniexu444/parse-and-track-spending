@@ -1,11 +1,14 @@
 import './App.css'
+import { useState } from 'react'
 import { useTransactions } from './hooks/useTransactions'
 import UploadSection from './components/UploadSection'
 import FiltersSection from './components/FiltersSection'
 import SummarySection from './components/SummarySection'
 import TransactionsTable from './components/TransactionsTable'
+import HowItWorksModal from './components/HowItWorksModal'
 
 function App() {
+  const [showHowItWorks, setShowHowItWorks] = useState(false)
   const {
     transactions,
     summary,
@@ -33,6 +36,13 @@ function App() {
     <div className="app">
       <header>
         <h1>Spending</h1>
+        <button
+          className="how-it-works-btn"
+          onClick={() => setShowHowItWorks(true)}
+          aria-label="How this site works"
+        >
+          How This Works
+        </button>
       </header>
 
       <UploadSection
@@ -67,6 +77,11 @@ function App() {
         sortField={sortField}
         sortDirection={sortDirection}
         handleSort={handleSort}
+      />
+
+      <HowItWorksModal
+        isOpen={showHowItWorks}
+        onClose={() => setShowHowItWorks(false)}
       />
     </div>
   )
