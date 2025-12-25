@@ -17,12 +17,6 @@ function UploadSection({
   const handleOpenAppleHelp = useCallback(() => setShowAppleHelp(true), [])
   const handleCloseAppleHelp = useCallback(() => setShowAppleHelp(false), [])
 
-  const handleClearWithConfirmation = useCallback(() => {
-    if (window.confirm(UPLOAD_LABELS.confirmClear)) {
-      handleClearData()
-    }
-  }, [handleClearData])
-
   return (
     <section className="upload-section">
       <div className="upload-controls">
@@ -40,7 +34,7 @@ function UploadSection({
         </label>
         <button
           className="clear-btn"
-          onClick={handleClearWithConfirmation}
+          onClick={handleClearData}
           aria-label={UPLOAD_LABELS.clearButton}
         >
           {UPLOAD_LABELS.clearButton}
