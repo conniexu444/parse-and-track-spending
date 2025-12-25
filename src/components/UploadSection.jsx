@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import amex1 from '/public/amex1.png'
-import amex2 from '/public/amex2.png'
-import amex3 from '/public/amex3.png'
-import amex4 from '/public/amex4.png'
+import amex1 from '../assets/amex1.png'
+import amex2 from '../assets/amex2.png'
+import amex3 from '../assets/amex3.png'
+import amex4 from '../assets/amex4.png'
 
 function UploadSection({
   uploading,
