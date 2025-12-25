@@ -4,20 +4,24 @@ import PropTypes from 'prop-types'
 function InstructionModal({ isOpen, onClose, title, steps }) {
   const modalRef = useRef(null)
   const triggerRef = useRef(null)
+  const onCloseRef = useRef(onClose)
 
-  // Store trigger element when modal opens
+  // Keep onClose ref updated without triggering effect re-runs
   useEffect(() => {
-    if (isOpen && !triggerRef.current) {
-      triggerRef.current = document.activeElement
-    }
-  }, [isOpen])
+    onCloseRef.current = onClose
+  }, [onClose])
 
-  // Handle keyboard events and focus management
+  // Handle all modal behavior in a single effect
   useEffect(() => {
     if (!isOpen) return
 
     const modal = modalRef.current
     if (!modal) return
+
+    // Capture trigger element when modal opens
+    if (!triggerRef.current) {
+      triggerRef.current = document.activeElement
+    }
 
     // Get all focusable elements
     const focusableElements = modal.querySelectorAll(
@@ -35,7 +39,7 @@ function InstructionModal({ isOpen, onClose, title, steps }) {
     const handleKeyDown = (e) => {
       // Close on Escape
       if (e.key === 'Escape') {
-        onClose()
+        onCloseRef.current()
         return
       }
 
@@ -63,7 +67,7 @@ function InstructionModal({ isOpen, onClose, title, steps }) {
         triggerRef.current = null
       }
     }
-  }, [isOpen, onClose])
+  }, [isOpen])
 
   if (!isOpen) return null
 
