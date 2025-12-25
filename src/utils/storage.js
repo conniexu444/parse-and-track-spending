@@ -62,11 +62,13 @@ export function getFilteredTransactions(startDate, endDate, category) {
   let transactions = getTransactions()
 
   if (startDate) {
-    transactions = transactions.filter(t => t.timestamp >= startDate)
+    const startDateTime = new Date(startDate).getTime()
+    transactions = transactions.filter(t => new Date(t.timestamp).getTime() >= startDateTime)
   }
 
   if (endDate) {
-    transactions = transactions.filter(t => t.timestamp <= endDate + 'T23:59:59')
+    const endDateTime = new Date(endDate + 'T23:59:59.999Z').getTime()
+    transactions = transactions.filter(t => new Date(t.timestamp).getTime() <= endDateTime)
   }
 
   if (category && category !== 'All') {
@@ -83,11 +85,13 @@ export function getSummary(startDate, endDate) {
   let transactions = getTransactions()
 
   if (startDate) {
-    transactions = transactions.filter(t => t.timestamp >= startDate)
+    const startDateTime = new Date(startDate).getTime()
+    transactions = transactions.filter(t => new Date(t.timestamp).getTime() >= startDateTime)
   }
 
   if (endDate) {
-    transactions = transactions.filter(t => t.timestamp <= endDate + 'T23:59:59')
+    const endDateTime = new Date(endDate + 'T23:59:59.999Z').getTime()
+    transactions = transactions.filter(t => new Date(t.timestamp).getTime() <= endDateTime)
   }
 
   // Group by category and track charges vs credits
