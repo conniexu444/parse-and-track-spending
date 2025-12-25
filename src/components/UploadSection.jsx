@@ -1,4 +1,8 @@
 import React, { useState } from 'react'
+import amex1 from '/public/amex1.png'
+import amex2 from '/public/amex2.png'
+import amex3 from '/public/amex3.png'
+import amex4 from '/public/amex4.png'
 
 function UploadSection({
   uploading,
@@ -55,19 +59,19 @@ function UploadSection({
               <ol className="pdf-instructions">
                 <li>
                   <p>Log in to your American Express account and click on <strong>Statements & Activity</strong></p>
-                  <img src="/amex1.png" alt="American Express navigation showing Statements & Activity tab" className="instruction-img" />
+                  <img src={amex1} alt="American Express navigation showing Statements & Activity tab" className="instruction-img" />
                 </li>
                 <li>
                   <p>Click the <strong>Go to PDF Statements</strong> button</p>
-                  <img src="/amex2.png" alt="Go to PDF Statements button" className="instruction-img" />
+                  <img src={amex2} alt="Go to PDF Statements button" className="instruction-img" />
                 </li>
                 <li>
                   <p>Find the statement you want to download and click the <strong>Download</strong> button</p>
-                  <img src="/amex3.png" alt="Recent Statements list with Download buttons" className="instruction-img" />
+                  <img src={amex3} alt="Recent Statements list with Download buttons" className="instruction-img" />
                 </li>
                 <li>
                   <p>Select <strong>Billing Statement (PDF)</strong> and click <strong>Download</strong></p>
-                  <img src="/amex4.png" alt="File type selection dialog with Billing Statement PDF selected" className="instruction-img" />
+                  <img src={amex4} alt="File type selection dialog with Billing Statement PDF selected" className="instruction-img" />
                 </li>
                 <li>
                   <p>Once downloaded, use the upload button above to select and upload your PDF statement</p>
