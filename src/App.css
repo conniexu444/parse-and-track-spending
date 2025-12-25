@@ -835,6 +835,105 @@ tr:hover td {
   color: rgb(55, 53, 47);
 }
 
+/* Delete Confirmation Modal */
+.confirm-delete-modal {
+  max-width: 400px;
+}
+
+.modal-footer {
+  padding: 12px 18px;
+  border-top: 1px solid rgba(55, 53, 47, 0.09);
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.confirm-cancel {
+  background: transparent;
+  color: rgb(55, 53, 47);
+  padding: 8px 16px;
+  border: 1px solid rgba(55, 53, 47, 0.25);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.confirm-cancel:hover {
+  background: rgba(55, 53, 47, 0.04);
+  border-color: rgba(55, 53, 47, 0.4);
+}
+
+.confirm-cancel:focus {
+  outline: 2px solid #0969da;
+  outline-offset: 2px;
+}
+
+.confirm-action {
+  background: rgba(235, 87, 87, 0.1);
+  color: rgb(200, 55, 55);
+  padding: 8px 16px;
+  border: 1px solid rgba(235, 87, 87, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.confirm-action:hover {
+  background: rgba(235, 87, 87, 0.2);
+  border-color: rgba(235, 87, 87, 0.5);
+}
+
+.confirm-action:focus {
+  outline: 2px solid #0969da;
+  outline-offset: 2px;
+}
+
+.confirm-action.danger {
+  background: rgba(235, 87, 87, 0.15);
+  color: rgb(200, 55, 55);
+}
+
+/* Actions Column */
+.actions-cell {
+  text-align: center;
+  padding: 10px 6px;
+}
+
+.delete-btn {
+  background: transparent;
+  border: 1px solid rgba(235, 87, 87, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 4px 6px;
+  min-width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  color: rgb(200, 55, 55);
+}
+
+.delete-btn:hover {
+  background: rgba(235, 87, 87, 0.1);
+  border-color: rgba(235, 87, 87, 0.5);
+}
+
+.delete-btn:focus {
+  outline: 2px solid #0969da;
+  outline-offset: 2px;
+}
+
+.delete-icon {
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 600;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   header h1 {

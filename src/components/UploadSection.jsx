@@ -67,6 +67,10 @@ function UploadSection({
         </button>
       </div>
 
+      <div className="upload-note-row">
+        <p className="upload-note">{UPLOAD_LABELS.usbankNote}</p>
+      </div>
+
       <InstructionModal
         isOpen={showAmexHelp}
         onClose={handleCloseAmexHelp}
