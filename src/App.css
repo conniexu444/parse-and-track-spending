@@ -541,10 +541,17 @@ tr:hover td {
 .category-badge.editable {
   cursor: pointer;
   transition: background 0.15s ease;
+  border: none;
+  font-family: inherit;
 }
 
 .category-badge.editable:hover {
   background: rgba(55, 53, 47, 0.12);
+}
+
+.category-badge.editable:focus {
+  outline: 2px solid #0969da;
+  outline-offset: 2px;
 }
 
 /* Category colors */
