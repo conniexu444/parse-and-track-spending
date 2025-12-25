@@ -1,4 +1,8 @@
 import React, { useState } from 'react'
+import amex1 from '../assets/amex1.png'
+import amex2 from '../assets/amex2.png'
+import amex3 from '../assets/amex3.png'
+import amex4 from '../assets/amex4.png'
 
 function UploadSection({
   uploading,
@@ -52,8 +56,27 @@ function UploadSection({
               </button>
             </div>
             <div className="modal-body">
-              <p>Add your screenshots and steps here.</p>
-              <p>We’ll show users how to download a PDF statement and upload it.</p>
+              <ol className="pdf-instructions">
+                <li>
+                  <p>Log in to your American Express account and click on <strong>Statements & Activity</strong></p>
+                  <img src={amex1} alt="American Express navigation showing Statements & Activity tab" className="instruction-img" />
+                </li>
+                <li>
+                  <p>Click the <strong>Go to PDF Statements</strong> button</p>
+                  <img src={amex2} alt="Go to PDF Statements button" className="instruction-img" />
+                </li>
+                <li>
+                  <p>Find the statement you want to download and click the <strong>Download</strong> button</p>
+                  <img src={amex3} alt="Recent Statements list with Download buttons" className="instruction-img" />
+                </li>
+                <li>
+                  <p>Select <strong>Billing Statement (PDF)</strong> and click <strong>Download</strong></p>
+                  <img src={amex4} alt="File type selection dialog with Billing Statement PDF selected" className="instruction-img" />
+                </li>
+                <li>
+                  <p>Once downloaded, use the upload button above to select and upload your PDF statement</p>
+                </li>
+              </ol>
             </div>
           </div>
         </div>
