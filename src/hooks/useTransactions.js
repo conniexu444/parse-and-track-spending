@@ -72,6 +72,13 @@ export function useTransactions() {
     return () => {
       worker.removeEventListener('message', handleMessage)
       worker.removeEventListener('error', handleError)
+
+      // Reject all pending promises before terminating to prevent memory leaks
+      pendingRef.current.forEach(({ reject }) => {
+        reject(new Error('Worker terminated during cleanup'))
+      })
+      pendingRef.current.clear()
+
       worker.terminate()
     }
   }, [])
