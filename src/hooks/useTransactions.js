@@ -12,6 +12,7 @@ import {
 const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024
 const MAX_FILE_SIZE_LABEL = '2 MB'
 const MAX_PDF_PAGES = 60
+const PARSE_TIMEOUT_MS = 60000 // 60 seconds
 
 function formatFileSize(bytes) {
   if (!Number.isFinite(bytes)) return 'unknown size'
@@ -33,6 +34,7 @@ export function useTransactions() {
   const [sortDirection, setSortDirection] = useState('desc')
   const workerRef = useRef(null)
   const pendingRef = useRef(new Map())
+  const timeoutIdsRef = useRef(new Map())
 
   const refreshData = useCallback(({ startDate, endDate, selectedCategory }) => {
     setCategories(getCategories())
@@ -51,6 +53,14 @@ export function useTransactions() {
       const { id, ok, result, error } = event.data || {}
       const pending = pendingRef.current.get(id)
       if (!pending) return
+
+      // Clear timeout if it exists
+      const timeoutId = timeoutIdsRef.current.get(id)
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId)
+        timeoutIdsRef.current.delete(id)
+      }
+
       pendingRef.current.delete(id)
       if (ok) {
         pending.resolve(result)
@@ -61,6 +71,11 @@ export function useTransactions() {
 
     const handleError = (event) => {
       const error = event?.message || 'Worker error'
+
+      // Clear all timeouts
+      timeoutIdsRef.current.forEach((timeoutId) => clearTimeout(timeoutId))
+      timeoutIdsRef.current.clear()
+
       pendingRef.current.forEach(({ reject }) => reject(new Error(error)))
       pendingRef.current.clear()
     }
@@ -70,6 +85,13 @@ export function useTransactions() {
     workerRef.current = worker
 
     return () => {
+      // Clear all pending timeouts before cleanup
+      timeoutIdsRef.current.forEach((timeoutId) => clearTimeout(timeoutId))
+      timeoutIdsRef.current.clear()
+
+      // Clear all pending promises
+      pendingRef.current.clear()
+
       worker.removeEventListener('message', handleMessage)
       worker.removeEventListener('error', handleError)
 
@@ -103,7 +125,20 @@ export function useTransactions() {
     const transfer = kind === 'pdf' ? [payload.arrayBuffer] : []
 
     return new Promise((resolve, reject) => {
+      // Set up timeout to prevent orphaned promises
+      const timeoutId = setTimeout(() => {
+        const pending = pendingRef.current.get(id)
+        if (pending) {
+          pendingRef.current.delete(id)
+          timeoutIdsRef.current.delete(id)
+          reject(new Error(`File parsing timed out after ${PARSE_TIMEOUT_MS / 1000} seconds`))
+        }
+      }, PARSE_TIMEOUT_MS)
+
+      // Store both the promise handlers and timeout ID
+      timeoutIdsRef.current.set(id, timeoutId)
       pendingRef.current.set(id, { resolve, reject })
+
       worker.postMessage({ id, filename, kind, payload }, transfer)
     })
   }, [])
