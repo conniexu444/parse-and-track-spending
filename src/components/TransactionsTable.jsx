@@ -49,13 +49,20 @@ function TransactionsTable({
                         ))}
                       </select>
                     ) : (
-                      <span
+                      <button
+                        type="button"
                         className={`category-badge editable category-${getCategoryClassName(tx.category)}`}
                         onClick={() => setEditingId(tx.id)}
-                        title="Click to change category"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            setEditingId(tx.id)
+                          }
+                        }}
+                        aria-label={`Change category for ${tx.title}, currently ${tx.category}`}
                       >
                         {tx.category}
-                      </span>
+                      </button>
                     )}
                   </td>
                   <td><span className={`source-badge source-${(tx.source || 'unknown').toLowerCase().replace(/\s+/g, '-')}`}>{tx.source || 'Unknown'}</span></td>
