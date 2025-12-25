@@ -145,6 +145,17 @@ export function updateTransactionCategory(transactionId, newCategory) {
   return false
 }
 
+export function deleteTransaction(transactionId) {
+  const transactions = getTransactions()
+  const index = transactions.findIndex(t => t.id === transactionId)
+  if (index !== -1) {
+    transactions.splice(index, 1)
+    saveTransactions(transactions)
+    return true
+  }
+  return false
+}
+
 export const ALL_CATEGORIES = [
   'Food & Dining',
   'Transportation',

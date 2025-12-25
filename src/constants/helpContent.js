@@ -64,8 +64,10 @@ export const UPLOAD_LABELS = {
     processing: 'Processing...'
   },
   clearButton: 'Clear All Data',
-  amexNote: 'CSV/PDF support: American Express',
-  appleNote: 'CSV/PDF support: Apple Card',
-  amexAriaLabel: 'How to find and download your American Express statement',
-  appleAriaLabel: 'How to find and download your Apple Card statement'
+  amexNote: 'CSV/PDF support: American Express Credit Card',
+  appleNote: 'CSV/PDF support: Apple Credit Card',
+  usbankNote: 'CSV/PDF support: US Bank Credit Card',
+  amexAriaLabel: 'How to find and download your American Express Credit Card statement',
+  appleAriaLabel: 'How to find and download your Apple Credit Card statement',
+  usbankAriaLabel: 'How to find and download your US Bank Credit Card statement'
 }

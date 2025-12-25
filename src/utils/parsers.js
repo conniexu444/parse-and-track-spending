@@ -218,6 +218,8 @@ export function detectSource(filename = '', content = '') {
     return 'Capital One'
   } else if (lowerFilename.includes('apple')) {
     return 'Apple Card'
+  } else if (lowerFilename.includes('usb') || lowerFilename.includes('us bank') || lowerFilename.includes('usbank')) {
+    return 'US Bank'
   }
 
   // Try to detect from content patterns
@@ -588,6 +590,124 @@ function parseAppleCardPDF(pages) {
   return transactions
 }
 
+function parseUSBankPDF(pages) {
+  const transactions = []
+  const fullText = pages.join(' ')
+
+  // Extract the statement period to get the year (accounting for spaces in PDF text)
+  // Pattern matches: "09 / 26 / 20 25" format from PDFs
+  const periodMatch = fullText.match(/(\d{2})\s*\/\s*(\d{2})\s*\/\s*(\d{2})\s+(\d{2})\s*-\s*(\d{2})\s*\/\s*(\d{2})\s*\/\s*(\d{2})\s+(\d{2})/)
+
+  let statementStartMonth, statementEndMonth, statementStartYear, statementEndYear
+  if (periodMatch) {
+    statementStartMonth = parseInt(periodMatch[1], 10)
+    statementStartYear = `${periodMatch[3]}${periodMatch[4]}`
+    statementEndMonth = parseInt(periodMatch[5], 10)
+    statementEndYear = `${periodMatch[7]}${periodMatch[8]}`
+  } else {
+    // Fallback to current year if pattern not found
+    const currentYear = new Date().getFullYear().toString()
+    statementStartYear = currentYear
+    statementEndYear = currentYear
+    statementStartMonth = 1
+    statementEndMonth = 12
+  }
+
+  const seenTransactions = new Set()
+  const transactionCounts = new Map()
+
+  // Helper to determine the correct year for a transaction
+  function getTransactionYear(month) {
+    // If statement crosses year boundary (e.g., Dec 2024 - Jan 2025)
+    if (statementStartMonth > statementEndMonth) {
+      // December transactions belong to start year, January to end year
+      return month >= statementStartMonth ? statementStartYear : statementEndYear
+    }
+    // Otherwise, all transactions use end year
+    return statementEndYear
+  }
+
+  // Helper to add transaction
+  function addTransaction(dateStr, description, amountStr) {
+    // Clean the date string - remove extra spaces
+    const cleanDate = dateStr.replace(/\s+/g, '')
+
+    // Parse the date - dateStr is MM/DD format, need to add year
+    const [month, day] = cleanDate.split('/')
+    const transactionYear = getTransactionYear(parseInt(month, 10))
+    const fullDate = `${month}/${day}/${transactionYear}`
+    const timestamp = parseDate(fullDate)
+
+    // Clean the merchant description (remove extra spaces first)
+    const normalizedDescription = description.replace(/\s+/g, ' ').trim()
+    const cleanedDescription = cleanMerchantName(normalizedDescription)
+
+    // Skip transfers and payments (double-check in case any slip through)
+    if (isTransferOrPayment(cleanedDescription)) {
+      return
+    }
+
+    // Parse amount
+    const amountFloat = parseAmount(amountStr)
+
+    if (amountFloat === 0 || !cleanedDescription || cleanedDescription.length < 2) {
+      return
+    }
+
+    // Create unique ID with occurrence counter
+    const baseKey = `PURCHASE-${timestamp}-${amountFloat}-${cleanedDescription}`.replace(/[^a-zA-Z0-9]/g, '')
+    const occurrenceCount = (transactionCounts.get(baseKey) || 0) + 1
+    transactionCounts.set(baseKey, occurrenceCount)
+    const txId = `${baseKey}-${occurrenceCount}`
+
+    if (!seenTransactions.has(txId)) {
+      seenTransactions.add(txId)
+
+      transactions.push({
+        id: txId,
+        timestamp,
+        amount: amountFloat,
+        title: cleanedDescription,
+        category: categorizeTransaction(cleanedDescription),
+        source: 'US Bank'
+      })
+    }
+  }
+
+  // Find all transaction lines in the document
+  // Pattern accounts for spaces in dates: "10 / 22   10 / 22   MTC   PAYMENT THANK YOU   $524.77"
+  // Flexible pattern to match: MM / DD   MM / DD   REF   DESCRIPTION   $AMOUNT
+  const txPattern = /(\d{1,2}\s*\/\s*\d{1,2})\s+(\d{1,2}\s*\/\s*\d{1,2})\s+([A-Z0-9]+)\s+([\s\S]+?)\s+\$(\d{1,3}(?:,\d{3})*\.\d{2})/g
+
+  let match
+  while ((match = txPattern.exec(fullText)) !== null) {
+    const [, postDate, transDate, refNum, description, amount] = match
+
+    // Skip obvious header text, metadata, or section labels
+    // Match exact strings only (using $ anchor) to avoid filtering legitimate merchants
+    // like "TOTAL WINE", "POST OFFICE", etc.
+    if (description.match(/^(TOTAL|Continued|Post Date|Trans Date|Date|Ref|Transaction Date|Description|Amount|Page \d+|Statement Period|CR)$/i)) {
+      continue
+    }
+
+    // Skip if description is too short (likely noise)
+    if (description.trim().length < 3) {
+      continue
+    }
+
+    // Skip payments entirely (not actual spending, just paying off the card)
+    if (description.toUpperCase().includes('PAYMENT')) {
+      continue
+    }
+
+    // All remaining transactions are purchases
+    // Use the transaction date (not post date) for more accurate tracking
+    addTransaction(transDate, description.trim(), amount, false)
+  }
+
+  return transactions
+}
+
 export async function parsePDFBuffer(arrayBuffer, filename = '', { disableWorker = false, maxPages = 60 } = {}) {
   try {
     const pages = await extractTextFromPDFBuffer(arrayBuffer, { disableWorker, maxPages })
@@ -603,8 +723,11 @@ export async function parsePDFBuffer(arrayBuffer, filename = '', { disableWorker
     } else if (fullText.includes('American Express') || fullText.includes('AMERICAN EXPRESS')) {
       transactions = parseAmexPDF(pages)
       source = 'American Express'
+    } else if (fullText.includes('U.S. Bank') || fullText.includes('US Bank') || fullText.includes('usbank.com') || fullText.includes('Altitude Go')) {
+      transactions = parseUSBankPDF(pages)
+      source = 'US Bank'
     } else {
-      throw new Error('Unknown PDF format. Supported formats: American Express, Apple Card')
+      throw new Error('Unknown PDF format. Supported formats: American Express, Apple Card, US Bank')
     }
 
     if (transactions.length === 0) {
