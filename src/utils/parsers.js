@@ -731,7 +731,7 @@ export async function parsePDFBuffer(arrayBuffer, filename = '', { disableWorker
     }
 
     if (transactions.length === 0) {
-      throw new Error(`No transactions found in PDF. Make sure this is a valid ${source} credit card statement.`)
+      throw new Error('No transactions found in PDF. Make sure this is a valid credit card statement.')
     }
 
     return { transactions, source, filename }
