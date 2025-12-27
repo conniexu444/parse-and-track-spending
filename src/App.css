@@ -6,8 +6,8 @@
 
 body {
   font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif;
-  background: #ffffff;
-  color: rgb(55, 53, 47);
+  background: var(--bg-color);
+  color: var(--text-color);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -36,21 +36,21 @@ header {
 header h1 {
   font-size: 40px;
   font-weight: 700;
-  color: rgb(55, 53, 47);
+  color: var(--text-color);
   letter-spacing: -0.02em;
 }
 
-header .subtitle {
-  font-size: 14px;
-  color: rgba(55, 53, 47, 0.5);
-  margin-top: 4px;
+header .subtitle,
+.upload-note,
+.filter-group label {
+  color: var(--text-muted);
 }
 
 .how-it-works-btn {
   background: transparent;
   color: rgba(55, 53, 47, 0.7);
   padding: 8px 14px;
-  border: 1px solid rgba(55, 53, 47, 0.16);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
@@ -59,9 +59,10 @@ header .subtitle {
   white-space: nowrap;
 }
 
-.how-it-works-btn:hover {
-  background: rgba(55, 53, 47, 0.04);
-  color: rgb(55, 53, 47);
+.how-it-works-btn:hover,
+.clear-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-color);
   border-color: rgba(55, 53, 47, 0.25);
 }
 
@@ -73,7 +74,7 @@ section {
 section h2 {
   font-size: 16px;
   font-weight: 600;
-  color: rgb(55, 53, 47);
+  color: var(--text-color);
   margin-bottom: 12px;
   display: flex;
   align-items: center;
@@ -85,14 +86,14 @@ section h2::before {
   display: inline-block;
   width: 4px;
   height: 16px;
-  background: rgb(55, 53, 47);
+  background: var(--text-color);
   border-radius: 2px;
 }
 
 /* Upload Section */
 .upload-section {
   padding: 24px;
-  background: rgb(251, 251, 250);
+  background: var(--bg-secondary);
   border-radius: 8px;
   border: 1px solid rgba(55, 53, 47, 0.09);
 }
@@ -110,7 +111,7 @@ section h2::before {
 .upload-note {
   margin-top: 10px;
   font-size: 13px;
-  color: rgba(55, 53, 47, 0.7);
+  color: var(--text-muted);
 }
 
 .upload-note-row {
@@ -128,7 +129,7 @@ section h2::before {
   border-radius: 999px;
   border: 1px solid rgba(55, 53, 47, 0.25);
   background: white;
-  color: rgb(55, 53, 47);
+  color: var(--text-color);
   font-size: 9px;
   font-weight: 600;
   cursor: pointer;
@@ -175,10 +176,10 @@ section h2::before {
 
 .modal {
   width: min(800px, 100%);
-  background: white;
+  background: var(--bg-color);
   border-radius: 10px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(55, 53, 47, 0.1);
+  border: 1px solid var(--border-color);
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -228,7 +229,7 @@ section h2::before {
 
 .pdf-instructions li p {
   margin: 0 0 12px 0;
-  color: rgb(55, 53, 47);
+  color: var(--text-color);
   font-weight: 500;
 }
 
@@ -245,7 +246,7 @@ section h2::before {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgb(55, 53, 47);
+  background: var(--text-color);
   color: white;
   padding: 8px 14px;
   border-radius: 6px;
@@ -264,9 +265,9 @@ section h2::before {
   align-items: center;
   gap: 6px;
   background: transparent;
-  color: rgb(55, 53, 47);
+  color: var(--text-color);
   padding: 8px 14px;
-  border: 1px solid rgba(55, 53, 47, 0.16);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
@@ -318,7 +319,7 @@ section h2::before {
 .filter-group label {
   font-size: 12px;
   font-weight: 500;
-  color: rgba(55, 53, 47, 0.65);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -326,10 +327,10 @@ section h2::before {
 .filter-group input,
 .filter-group select {
   padding: 8px 10px;
-  border: 1px solid rgba(55, 53, 47, 0.16);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 14px;
-  color: rgb(55, 53, 47);
+  color: var(--text-color);
   background: white;
   min-width: 140px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -354,7 +355,7 @@ section h2::before {
 }
 
 .reset-btn:hover {
-  color: rgb(55, 53, 47);
+  color: var(--text-color);
   background: rgba(55, 53, 47, 0.04);
 }
 
@@ -409,7 +410,7 @@ section h2::before {
 }
 
 .category-card {
-  background: rgb(251, 251, 250);
+  background: var(--bg-secondary);
   padding: 16px;
   border-radius: 8px;
   cursor: pointer;
@@ -438,7 +439,7 @@ section h2::before {
 .category-card .amount {
   font-size: 20px;
   font-weight: 600;
-  color: rgb(55, 53, 47);
+  color: var(--text-color);
   margin-bottom: 2px;
 }
 
@@ -522,7 +523,7 @@ section h2::before {
 
 .no-data {
   text-align: center;
-  color: rgba(55, 53, 47, 0.5);
+  color: var(--text-muted);
   padding: 60px 20px;
   font-size: 14px;
 }
@@ -542,10 +543,10 @@ th, td {
 th {
   font-size: 12px;
   font-weight: 500;
-  color: rgba(55, 53, 47, 0.65);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  background: rgb(251, 251, 250);
+  background: var(--bg-secondary);
   position: sticky;
   top: 0;
 }
@@ -557,7 +558,7 @@ th.sortable {
 }
 
 th.sortable:hover {
-  color: rgb(55, 53, 47);
+  color: var(--text-color);
 }
 
 .sort-indicator {
@@ -599,7 +600,7 @@ th:last-child {
 }
 
 tr:hover td {
-  background: rgb(251, 251, 250);
+  background: var(--bg-secondary);
 }
 
 .category-badge {
@@ -608,7 +609,7 @@ tr:hover td {
   background: rgba(55, 53, 47, 0.06);
   border-radius: 4px;
   font-size: 12px;
-  color: rgb(55, 53, 47);
+  color: var(--text-color);
 }
 
 .category-badge.editable {
@@ -675,10 +676,10 @@ tr:hover td {
 
 .category-select {
   padding: 3px 6px;
-  border: 1px solid rgba(55, 53, 47, 0.16);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   font-size: 12px;
-  color: rgb(55, 53, 47);
+  color: var(--text-color);
   background: white;
   cursor: pointer;
 }
@@ -730,7 +731,7 @@ tr:hover td {
 .amount-cell {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: rgb(55, 53, 47);
+  color: var(--text-color);
 }
 
 /* How It Works Modal */
@@ -749,7 +750,7 @@ tr:hover td {
 .how-it-works-content h4 {
   font-size: 15px;
   font-weight: 600;
-  color: rgb(55, 53, 47);
+  color: var(--text-color);
   margin-bottom: 8px;
 }
 
@@ -832,7 +833,7 @@ tr:hover td {
 
 .privacy-notice p {
   margin: 0;
-  color: rgb(55, 53, 47);
+  color: var(--text-color);
 }
 
 /* Delete Confirmation Modal */
@@ -850,7 +851,7 @@ tr:hover td {
 
 .confirm-cancel {
   background: transparent;
-  color: rgb(55, 53, 47);
+  color: var(--text-color);
   padding: 8px 16px;
   border: 1px solid rgba(55, 53, 47, 0.25);
   border-radius: 6px;
@@ -982,4 +983,37 @@ tr:hover td {
   th, td {
     padding: 10px 12px;
   }
+}
+
+[data-theme="dark"] .upload-btn {
+  color: #000000 !important; 
+  font-weight: 600;
+}
+
+[data-theme="dark"] .filter-group input, 
+[data-theme="dark"] .filter-group select {
+  color: #000000 !important; 
+  background-color: #ffffff !important;
+}
+
+[data-theme="dark"] .reset-btn {
+  color: #000000 !important;
+  background-color: #ffffff !important; 
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] .how-it-works-btn {
+  color: #ffffff !important; 
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+[data-theme="dark"] .how-it-works-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: #ffffff !important;
+}
+
+[data-theme="dark"] .info-btn {
+  color: #000000 !important; 
+  background-color: #ffffff !important; 
+  border-color: rgba(0, 0, 0, 0.2) !important;
 }
