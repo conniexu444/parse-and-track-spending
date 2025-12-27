@@ -11,14 +11,14 @@ function UploadSection({
 }) {
   const [showAmexHelp, setShowAmexHelp] = useState(false)
   const [showAppleHelp, setShowAppleHelp] = useState(false)
-	const [showUsbankHelp, setShowUsbankHelp] = useState(false)
+	const [showUsbankHelp, setShowUSbankHelp] = useState(false)
 
   const handleOpenAmexHelp = useCallback(() => setShowAmexHelp(true), [])
   const handleCloseAmexHelp = useCallback(() => setShowAmexHelp(false), [])
   const handleOpenAppleHelp = useCallback(() => setShowAppleHelp(true), [])
   const handleCloseAppleHelp = useCallback(() => setShowAppleHelp(false), [])
-	const handleOpenUsbankHelp = useCallback(() => setShowUsbankHelp(false), [])
-	const handleCloseUsbankHelp = useCallback(() => setShowUsbankHelp(false), [])
+	const handleOpenUSbankHelp = useCallback(() => setShowUSbankHelp(true), [])
+	const handleCloseUSbankHelp = useCallback(() => setShowUSbankHelp(false), [])
 
   return (
     <section className="upload-section">
@@ -75,7 +75,7 @@ function UploadSection({
 				<button
           type="button"
           className="info-btn"
-          onClick={handleOpenUsbankHelp}
+          onClick={handleOpenUSbankHelp}
           aria-label={UPLOAD_LABELS.usbankAriaLabel}
           aria-haspopup="dialog"
         >
@@ -99,7 +99,7 @@ function UploadSection({
 
 			<InstructionModal
         isOpen={showUsbankHelp}
-        onClose={handleCloseUsbankHelp}
+        onClose={handleCloseUSbankHelp}
         title={HELP_CONTENT.usbank.title}
         steps={HELP_CONTENT.usbank.steps}
       />
