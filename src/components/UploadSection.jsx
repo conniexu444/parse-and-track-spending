@@ -72,6 +72,15 @@ function UploadSection({
 
       <div className="upload-note-row">
         <p className="upload-note">{UPLOAD_LABELS.usbankNote}</p>
+				<button
+          type="button"
+          className="info-btn"
+          onClick={handleOpenUsbankHelp}
+          aria-label={UPLOAD_LABELS.usbankAriaLabel}
+          aria-haspopup="dialog"
+        >
+          <span aria-hidden="true">i</span>
+        </button>
       </div>
 
       <InstructionModal
