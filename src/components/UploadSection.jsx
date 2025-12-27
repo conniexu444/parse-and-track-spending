@@ -11,11 +11,14 @@ function UploadSection({
 }) {
   const [showAmexHelp, setShowAmexHelp] = useState(false)
   const [showAppleHelp, setShowAppleHelp] = useState(false)
+	const [showUsbankHelp, setShowUsbankHelp] = useState(false)
 
   const handleOpenAmexHelp = useCallback(() => setShowAmexHelp(true), [])
   const handleCloseAmexHelp = useCallback(() => setShowAmexHelp(false), [])
   const handleOpenAppleHelp = useCallback(() => setShowAppleHelp(true), [])
   const handleCloseAppleHelp = useCallback(() => setShowAppleHelp(false), [])
+	const handleOpenUsbankHelp = useCallback(() => setShowUsbankHelp(false), [])
+	const handleCloseUsbankHelp = useCallback(() => setShowUsbankHelp(false), [])
 
   return (
     <section className="upload-section">
@@ -83,6 +86,13 @@ function UploadSection({
         onClose={handleCloseAppleHelp}
         title={HELP_CONTENT.apple.title}
         steps={HELP_CONTENT.apple.steps}
+      />
+
+			<InstructionModal
+        isOpen={showUsbankHelp}
+        onClose={handleCloseUsbankHelp}
+        title={HELP_CONTENT.usbank.title}
+        steps={HELP_CONTENT.usbank.steps}
       />
 
       {message.text && (
