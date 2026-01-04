@@ -11,11 +11,14 @@ function UploadSection({
 }) {
   const [showAmexHelp, setShowAmexHelp] = useState(false)
   const [showAppleHelp, setShowAppleHelp] = useState(false)
+	const [showUsbankHelp, setShowUSbankHelp] = useState(false)
 
   const handleOpenAmexHelp = useCallback(() => setShowAmexHelp(true), [])
   const handleCloseAmexHelp = useCallback(() => setShowAmexHelp(false), [])
   const handleOpenAppleHelp = useCallback(() => setShowAppleHelp(true), [])
   const handleCloseAppleHelp = useCallback(() => setShowAppleHelp(false), [])
+	const handleOpenUSbankHelp = useCallback(() => setShowUSbankHelp(true), [])
+	const handleCloseUSbankHelp = useCallback(() => setShowUSbankHelp(false), [])
 
   return (
     <section className="upload-section">
@@ -69,6 +72,15 @@ function UploadSection({
 
       <div className="upload-note-row">
         <p className="upload-note">{UPLOAD_LABELS.usbankNote}</p>
+				<button
+          type="button"
+          className="info-btn"
+          onClick={handleOpenUSbankHelp}
+          aria-label={UPLOAD_LABELS.usbankAriaLabel}
+          aria-haspopup="dialog"
+        >
+          <span aria-hidden="true">i</span>
+        </button>
       </div>
 
       <InstructionModal
@@ -83,6 +95,13 @@ function UploadSection({
         onClose={handleCloseAppleHelp}
         title={HELP_CONTENT.apple.title}
         steps={HELP_CONTENT.apple.steps}
+      />
+
+			<InstructionModal
+        isOpen={showUsbankHelp}
+        onClose={handleCloseUSbankHelp}
+        title={HELP_CONTENT.usbank.title}
+        steps={HELP_CONTENT.usbank.steps}
       />
 
       {message.text && (

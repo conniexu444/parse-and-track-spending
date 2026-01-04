@@ -55,6 +55,31 @@ export const HELP_CONTENT = {
         altText: null
       }
     ]
+  },
+  usbank: {
+		title: 'How to find your US Bank Creadit Card statement',
+		steps: [
+			{
+				text: 'Go to <strong>usbank.com</strong> on your laptop and log in to your acoount by click the <strong>Login</strong> on the top right corner',
+				image: null,
+				altText: null
+			},
+			{
+				text: 'Select <strong>Accounts</strong> from the menu at the top and select the document type you\'d like to view',
+        image: null,
+        altText: null
+			},
+			{
+				text: 'Choose the account from the dropdown menu, select a document year if needed',
+        image: null,
+        altText: null
+			},
+			{
+				text: 'right-click on desktop and save it as PDF, then use the upload button above to select and upload it',
+        image: null,
+        altText: null
+			}
+		]
   }
 }
 
