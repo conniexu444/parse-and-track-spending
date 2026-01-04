@@ -1,16 +1,15 @@
 import "./App.css";
 import { useState } from "react";
 import { useTransactions } from "./hooks/useTransactions";
-import { useTheme } from "./hooks/useTheme";
 import UploadSection from "./components/UploadSection";
 import FiltersSection from "./components/FiltersSection";
 import SummarySection from "./components/SummarySection";
 import TransactionsTable from "./components/TransactionsTable";
 import HowItWorksModal from "./components/HowItWorksModal";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModal";
+import CornerThemeToggle from "./components/CornerThemeToggle";
 
 function App() {
-    const { theme, toggleTheme } = useTheme();
     const [showHowItWorks, setShowHowItWorks] = useState(false);
     const {
         transactions,
@@ -42,23 +41,7 @@ function App() {
 
     return (
         <div className="app-container">
-            <button
-                onClick={toggleTheme}
-                style={{
-                    position: "absolute",
-                    top: 20,
-                    right: 20,
-                    padding: "8px 12px",
-                    borderRadius: "6px",
-                    border: theme === 'light' ? '1px solid black' : '1px solid white',
-                    background: "var(--card-bg)",
-                    color: "var(--text-color)",
-                    cursor: "pointer",
-                    zIndex: 100,
-                }}
-            >
-                {theme === "light" ? "🌙 Dark Mode" : "☀️ Light Mode"}
-            </button>
+            <CornerThemeToggle />
             <div className="app">
                 <header>
                     <h1>Spending</h1>
