@@ -1,18 +1,87 @@
 ![Alt](https://repobeats.axiom.co/api/embed/e2c42f85a99ac624475811ff855556e3eb437d0d.svg "Repobeats analytics image")
 
-# React + Vite
+# parse-and-track-spending
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Upload your bank and credit card statements to see where you've been spending. Everything runs **locally in your browser** — no server, no data uploads, no tracking.
 
-Currently, two official plugins are available:
+**[Live Demo →](https://conniexu444.github.io/parse-and-track-spending/)**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Upload CSVs or PDFs** from American Express, Apple Card, Chase, Capital One, and US Bank
+- **Auto-categorizes transactions** into Food & Dining, Transportation, Shopping, and more — using your own keyword config
+- **Spending summary** with total spent, total credits, and per-category breakdown
+- **Filter by date range and category**, sort by any column
+- **Edit categories inline** by clicking the badge on any transaction
+- **Dark/light mode** toggle
+- **100% private** — all parsing happens client-side via a Web Worker; nothing leaves your device
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Getting Started
+
+```bash
+git clone https://github.com/conniexu444/parse-and-track-spending.git
+cd parse-and-track-spending
+npm install
+npm run dev
+```
+
+`npm run dev` will automatically copy `category-config.example.json` to `category-config.json` on first run. Edit that file to add your own merchant keywords per category.
+
+---
+
+## Supported Statement Formats
+
+| Bank | CSV | PDF |
+|------|-----|-----|
+| American Express | ✅ | ✅ |
+| Apple Card | ✅ | ✅ |
+| Chase | ✅ | — |
+| Capital One | ✅ | — |
+| US Bank | ✅ | ✅ |
+
+PDFs are limited to 60 pages / 2 MB per file.
+
+---
+
+## Customizing Categories
+
+Your personal category config lives at `src/utils/category-config.json` (git-ignored). It maps keyword lists and regex patterns to spending categories. Start from the example:
+
+```bash
+cp src/utils/category-config.example.json src/utils/category-config.json
+```
+
+Then add your own merchants. For example, to add a coffee shop to "Food & Dining":
+
+```json
+{
+  "categories": {
+    "Food & Dining": {
+      "keywords": ["starbucks", "bluestone lane", "your local cafe"]
+    }
+  }
+}
+```
+
+---
+
+## Project Structure
+
+```
+src/
+  components/       # UI components (upload, filters, summary, table, modals)
+  hooks/            # useTransactions, useTheme
+  utils/            # Parsers (CSV + PDF), storage, formatters, category config
+  workers/          # Web Worker for non-blocking parsing
+  constants/        # Help modal content
+```
+
+---
+
+## Privacy
+
+No data ever leaves your browser. Statements are parsed in a Web Worker, stored in memory for the session, and discarded on page refresh. The app has no backend, no analytics on your transactions, and no third-party integrations that touch your data.

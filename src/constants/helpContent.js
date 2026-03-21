@@ -1,9 +1,7 @@
 import amex1 from '../assets/amex1.png'
 import amex2 from '../assets/amex2.png'
-import amex3 from '../assets/amex3.png'
 import amex4 from '../assets/amex4.png'
 import apple1 from '../assets/apple1.png'
-import apple2 from '../assets/apple2.png'
 
 export const HELP_CONTENT = {
   amex: {
@@ -21,8 +19,8 @@ export const HELP_CONTENT = {
       },
       {
         text: 'Find the statement you want to download and click the <strong>Download</strong> button',
-        image: amex3,
-        altText: 'Recent Statements list with Download buttons'
+        image: null,
+        altText: null
       },
       {
         text: 'Select <strong>Billing Statement (PDF)</strong> and click <strong>Download</strong>',
@@ -46,8 +44,8 @@ export const HELP_CONTENT = {
       },
       {
         text: 'Find the statement you want and click the <strong>download icon</strong> on the right',
-        image: apple2,
-        altText: 'Statements list with download icons'
+        image: null,
+        altText: null
       },
       {
         text: 'Save the PDF to your device, then use the upload button above to select and upload it',
