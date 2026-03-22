@@ -8,9 +8,13 @@ import TransactionsTable from "./components/TransactionsTable";
 import HowItWorksModal from "./components/HowItWorksModal";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModal";
 import CornerThemeToggle from "./components/CornerThemeToggle";
+import ApiKeyModal from "./components/ApiKeyModal";
+import AiAnalysisSection from "./components/AiAnalysisSection";
 
 function App() {
     const [showHowItWorks, setShowHowItWorks] = useState(false);
+    const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+    const [apiKeyVersion, setApiKeyVersion] = useState(0);
     const {
         transactions,
         summary,
@@ -45,13 +49,22 @@ function App() {
             <div className="app">
                 <header>
                     <h1>Spending</h1>
-                    <button
-                        className="how-it-works-btn"
-                        onClick={() => setShowHowItWorks(true)}
-                        aria-label="How this site works"
-                    >
-                        How This Works
-                    </button>
+                    <div className="header-actions">
+                        <button
+                            className="how-it-works-btn"
+                            onClick={() => setShowHowItWorks(true)}
+                            aria-label="How this site works"
+                        >
+                            How This Works
+                        </button>
+                        <button
+                            className="how-it-works-btn"
+                            onClick={() => setShowApiKeyModal(true)}
+                            aria-label="AI analysis settings"
+                        >
+                            AI Settings
+                        </button>
+                    </div>
                 </header>
 
                 <UploadSection
@@ -78,6 +91,13 @@ function App() {
                     setSelectedCategory={setSelectedCategory}
                 />
 
+                <AiAnalysisSection
+                    key={apiKeyVersion}
+                    transactions={transactions}
+                    summary={summary}
+                    onOpenSettings={() => setShowApiKeyModal(true)}
+                />
+
                 <TransactionsTable
                     transactions={transactions}
                     editingId={editingId}
@@ -94,6 +114,12 @@ function App() {
                 <HowItWorksModal
                     isOpen={showHowItWorks}
                     onClose={() => setShowHowItWorks(false)}
+                />
+
+                <ApiKeyModal
+                    isOpen={showApiKeyModal}
+                    onClose={() => setShowApiKeyModal(false)}
+                    onSave={() => setApiKeyVersion((v) => v + 1)}
                 />
 
                 <ConfirmDeleteModal
