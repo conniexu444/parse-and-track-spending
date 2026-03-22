@@ -15,7 +15,9 @@
     "pdfjs-dist": "^5.4.530",
     "prop-types": "^15.8.1",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "react-dom": "^19.2.3",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

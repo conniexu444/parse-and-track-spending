@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import PropTypes from 'prop-types'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { analyzeWithAnthropic, analyzeWithOpenAI } from '../utils/aiAnalysis'
 import { loadApiSettings, hasApiKey } from './ApiKeyModal'
 
@@ -102,7 +104,9 @@ function AiAnalysisSection({ transactions, summary, onOpenSettings }) {
               Clear
             </button>
           </div>
-          <div className="ai-result-body">{result}</div>
+          <div className="ai-result-body">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown>
+          </div>
         </div>
       )}
     </section>

@@ -34,7 +34,7 @@ Please provide:
 3. **Recurring Charges**: Any subscriptions or regular expenses you notice
 4. **Suggestions**: 2–3 actionable tips to optimize spending
 
-Keep the response concise and practical. Use plain text with simple formatting.`
+Keep the response concise and practical. Format your response in Markdown with headers, bullet points, and tables where appropriate.`
 }
 
 export async function analyzeWithAnthropic(apiKey, transactions, summary) {
