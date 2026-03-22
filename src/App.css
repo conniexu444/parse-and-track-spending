@@ -945,8 +945,62 @@ tr:hover td {
   font-size: 14px;
   line-height: 1.7;
   color: var(--text-color);
-  white-space: pre-wrap;
   word-break: break-word;
+}
+
+.ai-result-body h1,
+.ai-result-body h2,
+.ai-result-body h3 {
+  margin: 16px 0 8px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.ai-result-body h1 { font-size: 18px; }
+.ai-result-body h2 { font-size: 16px; }
+.ai-result-body h3 { font-size: 14px; }
+
+.ai-result-body p {
+  margin: 0 0 12px;
+}
+
+.ai-result-body ul,
+.ai-result-body ol {
+  margin: 0 0 12px;
+  padding-left: 20px;
+}
+
+.ai-result-body li {
+  margin-bottom: 4px;
+}
+
+.ai-result-body strong {
+  font-weight: 600;
+}
+
+.ai-result-body hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 16px 0;
+}
+
+.ai-result-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.ai-result-body th,
+.ai-result-body td {
+  text-align: left;
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+}
+
+.ai-result-body th {
+  background: var(--hover-bg);
+  font-weight: 600;
 }
 
 /* How It Works Modal */
