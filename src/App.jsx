@@ -7,7 +7,6 @@ import SummarySection from "./components/SummarySection";
 import TransactionsTable from "./components/TransactionsTable";
 import HowItWorksModal from "./components/HowItWorksModal";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModal";
-import CornerThemeToggle from "./components/CornerThemeToggle";
 import ApiKeyModal from "./components/ApiKeyModal";
 import AiAnalysisSection from "./components/AiAnalysisSection";
 
@@ -44,9 +43,7 @@ function App() {
     } = useTransactions();
 
     return (
-        <div className="app-container">
-            <CornerThemeToggle />
-            <div className="app">
+        <div className="app">
                 <header>
                     <h1>Spending</h1>
                     <div className="header-actions">
@@ -136,7 +133,6 @@ function App() {
                     isDangerous={true}
                 />
             </div>
-        </div>
     );
 }
 

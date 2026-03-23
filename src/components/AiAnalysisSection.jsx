@@ -87,7 +87,11 @@ function AiAnalysisSection({ transactions, summary, onOpenSettings }) {
 
       {loading && (
         <div className="ai-loading">
-          <div className="ai-loading-spinner" aria-hidden="true" />
+          <div className="ai-dual-ring" role="status">
+            <div className="ai-dual-ring-outer" />
+            <div className="ai-dual-ring-inner" />
+            <span className="sr-only">Loading...</span>
+          </div>
           <span>Analyzing {transactions.length} transactions...</span>
         </div>
       )}

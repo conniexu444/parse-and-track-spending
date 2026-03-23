@@ -5,6 +5,7 @@ import SortHeader from './SortHeader'
 
 function TransactionsTable({
   transactions,
+  readOnly = false,
   editingId,
   setEditingId,
   handleCategoryChange,
@@ -31,7 +32,7 @@ function TransactionsTable({
                 <SortHeader field="category" label="Category" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
                 <SortHeader field="source" label="Source" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
                 <SortHeader field="amount" label="Amount" sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
-                <th>Actions</th>
+                {!readOnly && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -40,7 +41,7 @@ function TransactionsTable({
                   <td>{formatDate(tx.timestamp)}</td>
                   <td>{tx.title}</td>
                   <td>
-                    {editingId === tx.id ? (
+                    {!readOnly && editingId === tx.id ? (
                       <select
                         className="category-select"
                         value={tx.category}
@@ -53,38 +54,40 @@ function TransactionsTable({
                         ))}
                       </select>
                     ) : (
-                      <button
-                        type="button"
-                        className={`category-badge editable category-${getCategoryClassName(tx.category)}`}
-                        onClick={() => setEditingId(tx.id)}
-                        onKeyDown={(e) => {
+                      <span className={`category-badge${!readOnly ? ' editable' : ''} category-${getCategoryClassName(tx.category)}`}
+                        onClick={!readOnly ? () => setEditingId(tx.id) : undefined}
+                        role={!readOnly ? 'button' : undefined}
+                        tabIndex={!readOnly ? 0 : undefined}
+                        onKeyDown={!readOnly ? (e) => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault()
                             setEditingId(tx.id)
                           }
-                        }}
-                        aria-label={`Change category for ${tx.title}, currently ${tx.category}`}
+                        } : undefined}
+                        aria-label={!readOnly ? `Change category for ${tx.title}, currently ${tx.category}` : undefined}
                       >
                         {tx.category}
-                      </button>
+                      </span>
                     )}
                   </td>
                   <td><span className={`source-badge source-${(tx.source || 'unknown').toLowerCase().replace(/\s+/g, '-')}`}>{tx.source || 'Unknown'}</span></td>
                   <td className="amount-cell">{formatCurrency(tx.amount)}</td>
-                  <td className="actions-cell">
-                    <button
-                      type="button"
-                      className="delete-btn"
-                      onClick={() => {
-                        setDeletingId(tx.id)
-                        setDeleteConfirmOpen(true)
-                      }}
-                      aria-label={`Delete transaction for ${tx.title}`}
-                      title="Delete this transaction"
-                    >
-                      <span className="delete-icon">×</span>
-                    </button>
-                  </td>
+                  {!readOnly && (
+                    <td className="actions-cell">
+                      <button
+                        type="button"
+                        className="delete-btn"
+                        onClick={() => {
+                          setDeletingId(tx.id)
+                          setDeleteConfirmOpen(true)
+                        }}
+                        aria-label={`Delete transaction for ${tx.title}`}
+                        title="Delete this transaction"
+                      >
+                        <span className="delete-icon">×</span>
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
