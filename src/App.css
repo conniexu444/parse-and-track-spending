@@ -267,7 +267,7 @@ section h2::before {
   font-size: 20px;
   line-height: 1;
   cursor: pointer;
-  color: rgba(55, 53, 47, 0.7);
+  color: var(--text-muted);
 }
 
 .modal {
@@ -284,7 +284,7 @@ section h2::before {
 .modal-body {
   padding: 0 18px 18px;
   font-size: 14px;
-  color: rgba(55, 53, 47, 0.8);
+  color: var(--text-color);
   overflow-y: auto;
 }
 
@@ -878,7 +878,7 @@ tr:hover td {
   border-radius: 6px;
   padding: 10px 14px;
   font-size: 13px;
-  color: rgba(55, 53, 47, 0.8);
+  color: var(--text-color);
   margin-bottom: 20px;
   line-height: 1.5;
 }
@@ -1175,7 +1175,7 @@ tr:hover td {
 
 .how-it-works-content p {
   font-size: 14px;
-  color: rgba(55, 53, 47, 0.8);
+  color: var(--text-color);
   line-height: 1.6;
   margin-bottom: 8px;
 }
@@ -1195,7 +1195,7 @@ tr:hover td {
 .bank-list li,
 .features-list li {
   font-size: 14px;
-  color: rgba(55, 53, 47, 0.8);
+  color: var(--text-color);
   line-height: 1.6;
   margin-bottom: 8px;
 }
