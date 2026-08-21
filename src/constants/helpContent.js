@@ -65,6 +65,8 @@ export const UPLOAD_LABELS = {
   amexNote: 'CSV/PDF support: American Express Credit Card',
   appleNote: 'CSV/PDF support: Apple Credit Card',
   usbankNote: 'CSV/PDF support: US Bank Credit Card',
+  biltNote: 'CSV/PDF support: Bilt Credit Card',
+  biltAriaLabel: 'How to find and download your Bilt Credit Card statement',
   amexAriaLabel: 'How to find and download your American Express Credit Card statement',
   appleAriaLabel: 'How to find and download your Apple Credit Card statement',
   usbankAriaLabel: 'How to find and download your US Bank Credit Card statement'

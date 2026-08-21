@@ -728,6 +728,11 @@ tr:hover td {
   color: rgb(0, 60, 110);
 }
 
+.source-badge.source-bilt {
+  background: rgba(0, 90, 60, 0.1);
+  color: rgb(0, 70, 45);
+}
+
 .amount-cell {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
